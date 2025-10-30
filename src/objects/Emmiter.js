@@ -1,9 +1,10 @@
 import { Point } from "../physics/Point.js";
 import { Color } from "../util/Color.js";
 import { Timer } from "../util/Timer.js";
-import { Circle } from "../../old/Circle.js";
+import { CircleObject } from "../../src/objects/Circle.js";
 import { TextObject } from "./Text.js";
 import { MathHelper } from "../util/MathHelper.js";
+import { SquareObject } from "./Square.js";
 
 /**
  * EmmiterManager
@@ -29,9 +30,9 @@ export class EmmiterManager {
         this.particle = config.particle;
 
         // Elementos visuais
-        this.shape = new Circle(this.position.clone(), {
+        this.shape = new CircleObject(this.position.clone(), {
             color: this.color,
-            mode: "center",
+            drawMode: "CENTER",
             radius: this.radius,
         });
 
@@ -60,7 +61,7 @@ export class EmmiterManager {
     /** Cria um novo objeto baseado na partícula original */
     create() {
         const pos = MathHelper.randomInsideCircle(this.position, this.radius);
-        return pos
+        return this.particle.clone(pos);
     }
 
     /** Atualiza o contador interno */

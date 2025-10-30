@@ -46,9 +46,9 @@ export class Shape extends Item {
             type: this.type,
             rotation: this.rotation,
             visible: this.visible,
-            color: this.color.clone ? this.color.clone() : this.color,
-            lineColor: this.lineColor.clone ? this.lineColor.clone() : this.lineColor,
-            lineWidth: this.lineWidth,
+            color: this.color ? this.color.clone() : null,
+            lineColor: this.lineColor ? this.lineColor.clone() : null,
+            lineWidth: this.lineWidth ? this.lineWidth : null,
             drawMode: this.drawMode,
             vertices: this.vertices.map(v => v.clone())
         };

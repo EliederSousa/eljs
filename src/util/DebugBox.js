@@ -1,7 +1,7 @@
 import { Mouse } from "../input/Mouse.js";
 import { Keyboard } from "../input/Keyboard.js";
-import { Item } from "../../old/Item.js";
-import { Rectangle } from "../../old/Rectangle.js";
+import { Item } from "../objects/Item.js";
+import { RectangleObject } from "../objects/Rectangle.js";
 import { TextObject } from "../objects/Text.js";
 import { Point } from "../physics/Point.js";
 import { Color } from "./Color.js";
@@ -10,13 +10,16 @@ import { ObjectContainer } from "./ObjectContainer.js";
 export class DebugBox extends Item {
     constructor(POINT = new Point(5, 5), CONF) {
         let CONFIG = { type: "DebuxBox", };
-        super(POINT, CONFIG);
-
+        super(CONFIG);
+        this.position = POINT;
         this.boxLines = 6;
-        this.box = new Rectangle(new Point(this.position.x, this.position.y), new Point(this.position.x + 140, this.position.y + 15 * this.boxLines + 14));
-        this.box.color = new Color(0, 0, 0, 0);
-        this.box.lineColor = new Color(Color.colors.chocolate);
-        this.box.lineWidth = 1;
+        this.box = new RectangleObject(new Point(this.position.x, this.position.y), {
+            color: new Color(0, 0, 0, 0),
+            lineColor: new Color(Color.colors.green),
+            lineWidth: 1,
+            width: this.position.x + 140,
+            height: this.position.y + 15 * this.boxLines + 14,
+        });
         this.objectContainer = CONF.container ? CONF.container : "null";
 
         this.versionText = new TextObject(new Point(0, 0), {

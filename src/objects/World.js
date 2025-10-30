@@ -7,7 +7,7 @@ import { Point } from "../physics/Point.js";
 import { Timer } from "../util/Timer.js";
 import { DebugBox } from "../util/DebugBox.js";
 import { EmmiterManager } from "./Emmiter.js";
-
+import { Properties } from "../core/Properties.js";
 
 export class World {
     #emmiters;
@@ -40,8 +40,15 @@ export class World {
     run() {
         if (Keyboard.isDown(Keyboard.NUM7)) this.#camera.decreaseZoom(.05);
         if (Keyboard.isDown(Keyboard.NUM9)) this.#camera.increaseZoom(.05);
+        if (Keyboard.isDown(Keyboard.NUM8)) this.#camera.moveBy(new Point(0, -5));
+        if (Keyboard.isDown(Keyboard.NUM2)) this.#camera.moveBy(new Point(0, 5));
+        if (Keyboard.isDown(Keyboard.NUM6)) this.#camera.moveBy(new Point(5, 0));
+        if (Keyboard.isDown(Keyboard.NUM4)) this.#camera.moveBy(new Point(-5, 0));
+
 
         this.#screen.draw();
+
+        // Checa os emmiters.
         for (let w = 0; w < this.#emmiters.getCount(); w++) {
             let emmit = this.#emmiters.getObject(w);
             if (emmit != null && emmit.isReadyToCreate()) {
@@ -53,38 +60,35 @@ export class World {
         // this.#physicsSolver.applyForces( this.#objects.getAll() );
 
         // Desenha os objetos
-        // Emmiters
-        for (let w = 0; w < this.#emmiters.getCount(); w++) {
-            let emmit = this.#emmiters.getObject(w);
-            if (emmit != null) {
-                emmit.update();
-                this.#screen.drawItem(emmit, this.#camera);
+        // Emmiters não devem aparecer na cena. Mas podemos desenhar suas áreas e timers se quisermos.
+        if (Properties.debugEmmiters) {
+            for (let w = 0; w < this.#emmiters.getCount(); w++) {
+                let emmit = this.#emmiters.getObject(w);
+                if (emmit != null) {
+                    emmit.update();
+                    this.#screen.drawItem(emmit, this.#camera);
+                }
             }
         }
 
         // Desenha os objetos
         for (let w = 0; w < this.#objects.getCount(); w++) {
             let tempObj = this.#objects.getObject(w);
-            if (tempObj.constructor.name == "MovableObject") {
-                // Aplica a aceleração final e atualiza os shapes do objeto
-                tempObj.update(this);
-                this.#screen.drawItem(tempObj);
-                if (Engine.velocityLine) {
-                    // TODO: delegar estes desenhos para o próprio objeto dentro de um método draw()
-                    this.#screen.drawItem(tempObj.velocityShape, this.#camera);
-                    this.#screen.drawItem(tempObj.accelerationShape, this.#camera);
-                }
+            //if (tempObj.constructor.name == "MovableObject") {
+            // Aplica a aceleração final e atualiza os shapes do objeto
+            //tempObj.update(this);
+            this.#screen.drawItem(tempObj, this.#camera);
+            if (Properties.velocityLine) {
+                // TODO: delegar estes desenhos para o próprio objeto dentro de um método draw()
+                this.#screen.drawItem(tempObj.velocityShape, this.#camera);
+                this.#screen.drawItem(tempObj.accelerationShape, this.#camera);
             }
+            //}
         }
 
-        // Desenha a debugBox, se estiver ativada.
-        if (Engine.debugBox) this.#screen.drawItem(this.#debugbox, this.#camera);
-
-        let obj = this.#objects.getAll();
-        for (let w in obj) {
-
-        }
-        requestAnimationFrame(this.run);
+        // Desenha a debugBox, se estiver ativada. Para ela, não usamos câmera.
+        if (Properties.debugBox) this.#screen.drawItem(this.#debugbox);
+        requestAnimationFrame(this.run.bind(this));
     }
 
     /*if( window.main) {

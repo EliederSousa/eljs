@@ -1,11 +1,12 @@
 import { Color } from "../util/Color.js";
-import { Item } from "../../old/Item.js";
+import { Item } from "./Item.js";
 
 export class TextObject extends Item {
     constructor(POINT, CONF) {
         // Eu posso passar um objeto 'cheio' (com todas as propriedades); 
         // A classe Item não usará todas, só as que são comuns para qualquer
         // objeto (posição, rotação, cores).
+        // TODO: Arrumar este objeto: ele deveria ser filho de Shape, e atributos como posição e cor seriam passados para Shape
         let CONFIG = {
             type: "Text",
             text: typeof (CONF) === "string" ? CONF : CONF.text,
@@ -15,9 +16,12 @@ export class TextObject extends Item {
             bold: CONF.bold == true ? "bold" : "",
             italic: CONF.italic ? "italic" : "",
         };
-        super(POINT, CONFIG);
-
+        super(CONFIG);
+        this.position = POINT;
         // Propriedades existentes apenas no objeto Text
+        this.color = CONFIG.color;
+        this.lineColor = CONFIG.lineColor;
+        this.lineWidth = CONFIG.lineWidth;
         this.text = CONFIG.text;
         this.font = CONFIG.font;
         this.size = CONFIG.size;
