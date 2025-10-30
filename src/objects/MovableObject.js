@@ -1,10 +1,10 @@
 import { Properties } from "../core/Properties.js";
 import { Point } from "../physics/Point.js";
 import { Color } from "../util/Color.js";
+import { Item } from "./Item.js";
 import { LineObject } from "./Line.js";
-import { Shape } from "./Shape.js";
 
-export class MovableObject extends Shape {
+export class MovableObject extends Item {
     constructor(position, conf = {}) {
         super({ type: "MovableObject" });
         this.shape = conf.shape;
@@ -41,7 +41,7 @@ export class MovableObject extends Shape {
         let force = F.clone();
         force.scale(1 / this.mass);
         // 2ª Lei de Newton.
-        this.acceleration.sum(force);
+        this.acceleration.add(force);
     };
 
     /**
@@ -58,15 +58,14 @@ export class MovableObject extends Shape {
      *  Por fim, devemos somar a velocidade do objeto em sua posição.   
      **/
     update(ENV) {
-
-        this.velocity.sum(this.acceleration);
+        this.velocity.add(this.acceleration);
         this.velocity.limit(this.maxVelocity);
-        this.position.sum(this.velocity);
+        this.position.add(this.velocity);
         if (Properties.circularScreen) {
             if (this.position.x > ENV.screen.width) this.position.sub(new Point(ENV.screen.width, 0));
             if (this.position.y > ENV.screen.height) this.position.sub(new Point(0, ENV.screen.height));
-            if (this.position.x < 0) this.position.sum(new Point(ENV.screen.width, 0));
-            if (this.position.y < 0) this.position.sum(new Point(0, ENV.screen.height));
+            if (this.position.x < 0) this.position.add(new Point(ENV.screen.width, 0));
+            if (this.position.y < 0) this.position.add(new Point(0, ENV.screen.height));
         }
 
         this.shape.position = this.position;
@@ -79,20 +78,26 @@ export class MovableObject extends Shape {
 
         if (Properties.velocityLine) {
             let velocityVec = this.velocity.clone();
-            velocityVec.scale(20);
-            velocityVec.sum(this.position);
+            velocityVec.scale(10);
+            velocityVec.add(this.position);
             this.velocityShape.position = this.position;
             this.velocityShape.to = velocityVec;
 
             let accelerationVec = this.acceleration.clone();
-            accelerationVec.scale(400);
-            accelerationVec.sum(this.position);
-            this.accelerationShape.position = this.position;
+            accelerationVec.scale(100);
+            accelerationVec.add(this.position);
+            this.accelerationShape.position = this.shape.getCenter();
             this.accelerationShape.to = accelerationVec;
         }
 
         this.acceleration.scale(0);
     };
+
+    draw(canvas_context) {
+        this.shape.draw(canvas_context);
+        this.velocityShape.draw(canvas_context);
+        this.accelerationShape.draw(canvas_context);
+    }
 
     debug() {
         console.log("------ DEBUG -------");

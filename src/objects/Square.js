@@ -34,6 +34,17 @@ export class SquareObject extends Shape {
         this.size = conf.size || 10;
     }
 
+    updateVertices() {
+        let half = this.size / 2;
+        this.vertices = [
+            this.position.clone().add(-half, -half),
+            this.position.clone().add(half, -half),
+            this.position.clone().add(half, half),
+            this.position.clone().add(-half, half)
+        ];
+    }
+    // TODO arrumar o update dos vertices para cada Shape
+
     _localClone(conf) {
         conf.size = this.size;
     }

@@ -1,3 +1,4 @@
+import { Point } from "../physics/Point.js";
 import { Color } from "../util/Color.js";
 import { Item } from "./Item.js";
 
@@ -62,9 +63,28 @@ export class Shape extends Item {
 
     _localClone(conf) { };
 
+    getCenter() {
+        if (!this.vertices || this.vertices.length === 0) {
+            return this.position.clone();
+        }
+        let sumX = 0;
+        let sumY = 0;
+
+        for (const v of this.vertices) {
+            sumX += v.x;
+            sumY += v.y;
+        }
+        const center = new Point(sumX / this.vertices.length, sumY / this.vertices.length);
+        return center;
+    };
+
+    updateVertices() {
+        throw new Error("Shape::updateVertices(): Uma classe filho não implementou a função updateVertices().");
+    }
+
     draw(canvas_context, camera, screen) {
         throw new Error("Shape::draw(): Uma classe filho não implementou a função draw().");
-    }
+    };
 
     drawVertices(canvas_context) {
         canvas_context.beginPath();
