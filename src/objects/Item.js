@@ -31,10 +31,6 @@ export class Item {
         this.#maxTime = value;
     }
 
-    update(POSITION) {
-        this.position = POSITION;
-    }
-
     draw(canvas_context, camera, screen) {
         throw new Error("Item::draw(): Uma classe filho não implementou a função draw().");
     }

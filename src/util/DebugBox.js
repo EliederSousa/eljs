@@ -46,7 +46,22 @@ export class DebugBox extends Item {
             bold: true,
         });
 
+        this.lastFrameTime = performance.now();
+        this.frameCount = 0;
+        this.fps = 0;
+        this.lastFpsUpdate = performance.now();
     };
+
+    updateFps() {
+        const now = performance.now();
+        this.frameCount++;
+        if (now - this.lastFpsUpdate >= 1000) {
+            this.fps = Math.round((this.frameCount * 1000) / (now - this.lastFpsUpdate));
+            this.lastFpsUpdate = now;
+            this.frameCount = 0;
+        }
+        this.lastFrameTime = now;
+    }
 
     setPosition(X, Y) {
         this.position.x = X;
@@ -54,11 +69,16 @@ export class DebugBox extends Item {
     }
 
     draw(canvas_context, camera, screen) {
+        this.updateFps();
         let xTemp = this.position.x + 5;
         let yTemp = this.position.y + 15;
         this.versionText.position = new Point(xTemp, yTemp);
         this.versionText.text = "  SANDBOX v1.1";
         screen.drawItem(this.versionText);
+
+        this.mouseText.position = new Point(xTemp, yTemp += 15);
+        this.mouseText.text = `FPS: ${this.fps}`;
+        screen.drawItem(this.mouseText);
 
         this.mouseText.position = new Point(xTemp, yTemp += 15);
         this.mouseText.text = "Mouse: " + Mouse.x + ", " + Mouse.y;

@@ -36,6 +36,17 @@ export class RectangleObject extends Shape {
         this.height = conf.height || 10;
     }
 
+    updateVertices() {
+        let halfx = this.width / 2;
+        let halfy = this.height / 2;
+        this.vertices = [
+            this.position.clone().add(-halfx, -halfy),
+            this.position.clone().add(halfx, -halfy),
+            this.position.clone().add(halfx, halfy),
+            this.position.clone().add(-halfx, halfy)
+        ];
+    }
+
     _localClone(conf) {
         conf.width = this.width;
         conf.height = this.height;
@@ -43,6 +54,7 @@ export class RectangleObject extends Shape {
 
     /** @override */
     draw(canvas_context) {
+        this.updateVertices();
         if (!this.visible) return;
         if (this.drawMode == Shape.drawModes.VERTICES) {
             super.drawVertices(canvas_context);

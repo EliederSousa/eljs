@@ -41,8 +41,19 @@ export class CircleObject extends Shape {
         conf.numvertices = this.numvertices;
     }
 
+    updateVertices() {
+        let numvertices = this.numvertices || 32;
+        let angleincrement = 360 / numvertices;
+        this.vertices = [];
+        for (let w = 0; w < 360; w += angleincrement) {
+            let temp = this.position.clone();
+            this.vertices.push(new Point(temp.x + (Math.cos(Math.PI / 180 * w) * this.radius), temp.y + (Math.sin(Math.PI / 180 * w) * this.radius)));
+        }
+    }
+
     /** @override */
     draw(canvas_context) {
+        this.updateVertices();
         if (!this.visible) return;
         if (this.drawMode == Shape.drawModes.VERTICES) {
             super.drawVertices(canvas_context);

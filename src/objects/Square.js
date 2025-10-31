@@ -51,6 +51,7 @@ export class SquareObject extends Shape {
 
     /** @override */
     draw(canvas_context) {
+        this.updateVertices();
         if (!this.visible) return;
         if (this.drawMode == Shape.drawModes.VERTICES) {
             super.drawVertices(canvas_context);

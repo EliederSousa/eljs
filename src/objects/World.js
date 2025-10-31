@@ -16,6 +16,7 @@ export class World {
     #camera;
     #timer;
     #debugbox;
+    #mainfunction;
     // #physicsSolver;
 
     constructor() {
@@ -27,6 +28,11 @@ export class World {
         this.#debugbox = new DebugBox(new Point(5, 5), { container: this.#objects });
         // this.#phisicsSolver = new Physics();
         this.#timer = new Timer();
+        this.#mainfunction = null;
+    }
+
+    registerMainFunction(func) {
+        this.#mainfunction = func;
     }
 
     add(item) {
@@ -45,6 +51,9 @@ export class World {
         if (Keyboard.isDown(Keyboard.NUM6)) this.#camera.moveBy(new Point(5, 0));
         if (Keyboard.isDown(Keyboard.NUM4)) this.#camera.moveBy(new Point(-5, 0));
 
+        if (this.#mainfunction) {
+            this.#mainfunction();
+        }
 
         this.#screen.draw();
 
@@ -74,24 +83,30 @@ export class World {
         // Desenha os objetos
         for (let w = 0; w < this.#objects.getCount(); w++) {
             let tempObj = this.#objects.getObject(w);
+            tempObj.applyForce(new Point(0, .05))
+            tempObj.update();
             //if (tempObj.constructor.name == "MovableObject") {
             // Aplica a aceleração final e atualiza os shapes do objeto
             //tempObj.update(this);
-            this.#screen.drawItem(tempObj, this.#camera);
+            if (tempObj.movableObject) {
+                this.#screen.drawItem(tempObj.movableObject, this.#camera);
+            } else {
+                this.#screen.drawItem(tempObj, this.#camera);
+            }
             if (Properties.velocityLine) {
                 // TODO: delegar estes desenhos para o próprio objeto dentro de um método draw()
-                this.#screen.drawItem(tempObj.velocityShape, this.#camera);
-                this.#screen.drawItem(tempObj.accelerationShape, this.#camera);
+                if (tempObj.movableObject) {
+                    this.#screen.drawItem(tempObj.movableObject.velocityShape, this.#camera);
+                    this.#screen.drawItem(tempObj.movableObject.accelerationShape, this.#camera);
+                } else {
+                    this.#screen.drawItem(tempObj.velocityShape, this.#camera);
+                    this.#screen.drawItem(tempObj.accelerationShape, this.#camera);
+                }
             }
-            //}
         }
 
         // Desenha a debugBox, se estiver ativada. Para ela, não usamos câmera.
         if (Properties.debugBox) this.#screen.drawItem(this.#debugbox);
         requestAnimationFrame(this.run.bind(this));
     }
-
-    /*if( window.main) {
-        window.main();
-    }*/
 }

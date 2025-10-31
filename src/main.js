@@ -1,34 +1,55 @@
-import { Screen } from "./core/Screen.js";
 import { Keyboard } from "./input/Keyboard.js";
-import { Mouse } from "./input/Mouse.js";
+import { CircleObject } from "./objects/Circle.js";
 import { MovableObject } from "./objects/MovableObject.js";
+import { RigidBody } from "./objects/RigidBody.js";
 import { Shape } from "./objects/Shape.js";
-import { SquareObject } from "./objects/Square.js";
+import { World } from "./objects/World.js";
 import { Point } from "./physics/Point.js";
 import { Color } from "./util/Color.js";
 
-let sc = new Screen("fullscreen");
-let sq = new SquareObject(new Point(20, 20), {
-    color: new Color(Color.colors.acid_green),
-    size: 20,
-    drawMode: Shape.drawModes.VERTICES
-})
-let mov = new MovableObject(new Point(10, 10), {
-    shape: sq,
-    velocity: new Point(5, 0),
-})
+let world = new World();
 
-function loop() {
-    if (Keyboard.isDown(Keyboard.UP)) mov.applyForce(new Point(0, -.2));
-    if (Keyboard.isDown(Keyboard.DOWN)) mov.applyForce(new Point(0, .2));
-    if (Keyboard.isDown(Keyboard.LEFT)) mov.applyForce(new Point(-.2, 0));
-    if (Keyboard.isDown(Keyboard.RIGHT)) mov.applyForce(new Point(.2, 0));
-    //mov.applyForce(new Point(0, 2));
-    mov.update();
+// ----------------------------------------------------------------
 
-    sc.draw();
-    sc.drawItem(mov);
-    requestAnimationFrame(loop);
+class Bullet extends RigidBody {
+    constructor(pos, vel) {
+        let shape = new CircleObject(new Point(pos.x, pos.y), {
+            color: new Color(Color.colors.acid_green),
+            lineColor: new Color(Color.colors.aliceblue),
+            lineWidth: 3,
+            radius: 5,
+            drawMode: Shape.drawModes.CENTER
+        });
+        let velNormal = vel.clone().scale(2);
+        let movable = new MovableObject(new Point(pos.x, pos.y), {
+            velocity: new Point(velNormal.x, velNormal.y)
+        })
+        super(shape, movable);
+    }
+
+    /** @override */
+    update() {
+        this.movableObject.update();
+    }
 }
 
-loop();
+let player = new RigidBody(new CircleObject(new Point(0, 0), {
+    radius: 10,
+    color: new Color(Color.colors.cyan),
+    lineColor: new Color(Color.colors.gray),
+    lineWidth: 2
+}), new MovableObject(new Point(100, 100), { velocity: new Point(0, 0) }));
+
+// ----------------------------------------------------------------
+
+world.add(player);
+function main() {
+    if (Keyboard.isDown(Keyboard.UP)) player.movableObject.applyForce(new Point(0, -.2));
+    if (Keyboard.isDown(Keyboard.DOWN)) player.movableObject.applyForce(new Point(0, .2));
+    if (Keyboard.isDown(Keyboard.LEFT)) player.movableObject.applyForce(new Point(-.2, 0));
+    if (Keyboard.isDown(Keyboard.RIGHT)) player.movableObject.applyForce(new Point(.2, 0));
+    if (Keyboard.isDown(Keyboard.SPACE)) world.add(new Bullet(player.shape.position, player.movableObject.velocity));
+}
+
+world.registerMainFunction(main);
+world.run();
