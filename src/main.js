@@ -1,5 +1,6 @@
 import { Keyboard } from "./input/Keyboard.js";
 import { CircleObject } from "./objects/Circle.js";
+import { EmmiterManager } from "./objects/Emmiter.js";
 import { MovableObject } from "./objects/MovableObject.js";
 import { RigidBody } from "./objects/RigidBody.js";
 import { Shape } from "./objects/Shape.js";
@@ -40,9 +41,41 @@ let player = new RigidBody(new CircleObject(new Point(0, 0), {
     lineWidth: 2
 }), new MovableObject(new Point(100, 100), { velocity: new Point(0, 0) }));
 
+
+class Particle extends RigidBody {
+    constructor(pos, vel) {
+        let shape = new CircleObject(new Point(pos.x, pos.y), {
+            color: new Color(Color.colors.acid_green),
+            lineColor: new Color(Color.colors.aliceblue),
+            lineWidth: 3,
+            radius: 5,
+            drawMode: Shape.drawModes.CENTER
+        });
+        let velNormal = vel.clone().scale(2);
+        let movable = new MovableObject(new Point(pos.x, pos.y), {
+            velocity: new Point(velNormal.x, velNormal.y)
+        })
+        super(shape, movable);
+    }
+
+    /** @override */
+    update() {
+        this.movableObject.update();
+    }
+}
+
+let fireParticle = new Particle(new Point(0, 0), new Point(0, -1))
+
 // ----------------------------------------------------------------
 
 world.add(player);
+world.addEmitter({
+    minTime: 100,
+    maxTime: 200,
+    radius: 20,
+    position: new Point(200, 200),
+    particle: fireParticle
+})
 function main() {
     if (Keyboard.isDown(Keyboard.UP)) player.movableObject.applyForce(new Point(0, -.2));
     if (Keyboard.isDown(Keyboard.DOWN)) player.movableObject.applyForce(new Point(0, .2));

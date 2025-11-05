@@ -9,9 +9,11 @@ export class MovableObject extends Item {
         super({ type: "MovableObject" });
         this.shape = conf.shape;
         this.mass = conf.mass || 1;
-        this.position = position;
-        this.velocity = conf.velocity || new Point(0, 0);
-        this.acceleration = conf.acceleration || new Point(0, 0);
+        this.position = position.clone();
+        this.velocity = conf.velocity.clone() || new Point(0, 0);
+        this.acceleration = conf.acceleration && typeof conf.acceleration.clone === "function"
+            ? conf.acceleration.clone() :
+            new Point(0, 0);
         this.maxVelocity = conf.maxVelocity || Properties.maxVelocity;
         this.rotation = conf.rotation || 0;
         this.velRotation = conf.velRotation || 0;
@@ -34,8 +36,9 @@ export class MovableObject extends Item {
     }
 
     clone(position) {
-        return new MovableObject(position, this.cloneData);
+        return new MovableObject(position.clone(), this.cloneData);
     }
+
 
     applyForce(F) {
         let force = F.clone();

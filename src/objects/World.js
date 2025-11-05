@@ -8,6 +8,7 @@ import { Timer } from "../util/Timer.js";
 import { DebugBox } from "../util/DebugBox.js";
 import { EmmiterManager } from "./Emmiter.js";
 import { Properties } from "../core/Properties.js";
+import { PhysicsSolver } from "../physics/PhysicsSolver.js";
 
 export class World {
     #emmiters;
@@ -17,7 +18,6 @@ export class World {
     #timer;
     #debugbox;
     #mainfunction;
-    // #physicsSolver;
 
     constructor() {
         this.#emmiters = new ObjectContainer();
@@ -26,7 +26,6 @@ export class World {
         this.#screen.setBackgroundColor(new Color(.2));
         this.#camera = new Camera(new Point(this.#screen.center.x, this.#screen.center.y));
         this.#debugbox = new DebugBox(new Point(5, 5), { container: this.#objects });
-        // this.#phisicsSolver = new Physics();
         this.#timer = new Timer();
         this.#mainfunction = null;
     }
@@ -43,7 +42,26 @@ export class World {
         this.#emmiters.add(new EmmiterManager(conf));
     }
 
+    // Loop principal.
+    // Fase 1: Criação de objetos
+    //   1) Checa inputs
+    //   2) Chama a função main (se ela foi passada pelo usuário)
+    //   3) Checa emmiters (cria novos objetos)
+    // --------------------------------------
+    // Fase 2: Cálculos físicos
+    //   1) Aplica forças a todos os objetos
+    //   2) Resolve colisões entre objetos
+    //  -------------------------------------
+    // Fase 3: Rotinas de renderização
+    //   1) Desenha a tela
+    //   2) Desenha emmiters
+    //   3) Desenha objetos
     run() {
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // ~~ Fase 1:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         if (Keyboard.isDown(Keyboard.NUM7)) this.#camera.decreaseZoom(.05);
         if (Keyboard.isDown(Keyboard.NUM9)) this.#camera.increaseZoom(.05);
         if (Keyboard.isDown(Keyboard.NUM8)) this.#camera.moveBy(new Point(0, -5));
@@ -55,8 +73,6 @@ export class World {
             this.#mainfunction();
         }
 
-        this.#screen.draw();
-
         // Checa os emmiters.
         for (let w = 0; w < this.#emmiters.getCount(); w++) {
             let emmit = this.#emmiters.getObject(w);
@@ -66,9 +82,19 @@ export class World {
             }
         }
 
-        // this.#physicsSolver.applyForces( this.#objects.getAll() );
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // ~~ Fase 2:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        // Desenha os objetos
+        PhysicsSolver.applyForces(this.#objects.getAll());
+        PhysicsSolver.solveColisions(this.#objects.getAll());
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // ~~ Fase 3:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        this.#screen.draw();
+
         // Emmiters não devem aparecer na cena. Mas podemos desenhar suas áreas e timers se quisermos.
         if (Properties.debugEmmiters) {
             for (let w = 0; w < this.#emmiters.getCount(); w++) {
@@ -83,7 +109,7 @@ export class World {
         // Desenha os objetos
         for (let w = 0; w < this.#objects.getCount(); w++) {
             let tempObj = this.#objects.getObject(w);
-            tempObj.applyForce(new Point(0, .05))
+            //tempObj.applyForce(new Point(0, .02))
             tempObj.update();
             //if (tempObj.constructor.name == "MovableObject") {
             // Aplica a aceleração final e atualiza os shapes do objeto

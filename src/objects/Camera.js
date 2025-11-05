@@ -118,8 +118,6 @@ export class Camera extends Item {
 
         this.position.x += (this.target.x - this.position.x) * easeT;
         this.position.y += (this.target.y - this.position.y) * easeT;
-
-        super.update(this.position);
     }
 
     draw(canvas_context) {
