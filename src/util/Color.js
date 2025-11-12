@@ -907,11 +907,12 @@ export class Color {
             this.r = r[0] / 255;
             this.g = r[1] / 255;
             this.b = r[2] / 255;
-            this.a = this.a ?? 1;
-        } else if (g !== null && b !== null) {
+            this.a = r[3] ? (r[3] / 255) : 1;
+        } else if (g !== null && b !== null && a !== null) {
             this.r = r;
             this.g = g;
             this.b = b;
+            this.a = a;
         } else {
             // escala de cinza
             this.r = this.g = this.b = r;
@@ -942,7 +943,7 @@ export class Color {
      * @returns {Color}
      */
     clone() {
-        return new Color([this.r * 255, this.g * 255, this.b * 255, this.a]);
+        return new Color(this.r, this.g, this.b, this.a);
     }
 
     toRGB255() {

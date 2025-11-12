@@ -70,10 +70,17 @@ export class CircleObject extends Shape {
             }
             canvas_context.arc(temppos.x, temppos.y, this.radius, 0, MathHelper._TWOPI);
             if (this.color) {
-                if (this.color) {
+                if (this.color.constructor.name == "GradientColor") {
+                    canvas_context.globalCompositeOperation = "lighter";
+                    let gradient = canvas_context.createRadialGradient(this.position.x, this.position.y, 1, this.position.x, this.position.y, this.radius - this.color.radiusOffset);
+                    this.color.colors.map((color, step) => {
+                        gradient.addColorStop(step / (this.color.colors.length - 1), color.CSS);
+                    })
+                    canvas_context.fillStyle = gradient;
+                } else {
                     canvas_context.fillStyle = this.color.CSS ? this.color.CSS : this.color;
-                    canvas_context.fill();
                 }
+                canvas_context.fill();
                 if (this.lineColor && this.lineWidth) {
                     canvas_context.strokeStyle = this.lineColor.CSS ? this.lineColor.CSS : this.lineColor;
                     canvas_context.lineWidth = this.lineWidth;

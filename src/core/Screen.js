@@ -8,7 +8,7 @@ export class Screen {
         this.width = 0;
         this.height = 0;
         this.center = { x: 0, y: 0 };
-        this.bgColor = new Color(.2);
+        this.bgColor = new Color(0, 0, 0, .2);
         this.zoom = 1;
         this.borderSize = 0;
 
@@ -37,6 +37,7 @@ export class Screen {
 
     draw() {
         this.context.save();
+        this.context.globalCompositeOperation = "source-over";
         this.context.fillStyle = this.bgColor.CSS;
         this.context.fillRect(0, 0, this.width, this.height);
         this.context.restore();

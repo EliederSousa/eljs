@@ -23,7 +23,7 @@ export class World {
         this.#emmiters = new ObjectContainer();
         this.#objects = new ObjectContainer();
         this.#screen = new Screen("fullscreen");
-        this.#screen.setBackgroundColor(new Color(.2));
+        //this.#screen.setBackgroundColor(new Color(0));
         this.#camera = new Camera(new Point(this.#screen.center.x, this.#screen.center.y));
         this.#debugbox = new DebugBox(new Point(5, 5), { container: this.#objects });
         this.#timer = new Timer();

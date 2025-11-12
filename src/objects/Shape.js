@@ -94,7 +94,16 @@ export class Shape extends Item {
         canvas_context.closePath();
 
         if (this.color) {
-            canvas_context.fillStyle = this.color.CSS ? this.color.CSS : this.color;
+            if (this.color.constructor.name == "GradientColor") {
+                canvas_context.globalCompositeOperation = "lighter";
+                let gradient = canvas_context.createRadialGradient(this.position.x, this.position.y, 1, this.position.x, this.position.y, this.radius - this.color.radiusOffset);
+                this.color.colors.map((color, step) => {
+                    gradient.addColorStop(step / (this.color.colors.length - 1), color.CSS);
+                })
+                canvas_context.fillStyle = gradient;
+            } else {
+                canvas_context.fillStyle = this.color.CSS ? this.color.CSS : this.color;
+            }
             canvas_context.fill();
         }
         if (this.lineColor) {
