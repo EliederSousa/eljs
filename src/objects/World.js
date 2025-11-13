@@ -23,11 +23,14 @@ export class World {
         this.#emmiters = new ObjectContainer();
         this.#objects = new ObjectContainer();
         this.#screen = new Screen("fullscreen");
-        //this.#screen.setBackgroundColor(new Color(0));
         this.#camera = new Camera(new Point(this.#screen.center.x, this.#screen.center.y));
         this.#debugbox = new DebugBox(new Point(5, 5), { container: this.#objects });
         this.#timer = new Timer();
         this.#mainfunction = null;
+    }
+
+    getScreenCenter() {
+        return this.#screen.center;
     }
 
     registerMainFunction(func) {
@@ -47,6 +50,7 @@ export class World {
     //   1) Checa inputs
     //   2) Chama a função main (se ela foi passada pelo usuário)
     //   3) Checa emmiters (cria novos objetos)
+    //   4) Remove objetos
     // --------------------------------------
     // Fase 2: Cálculos físicos
     //   1) Aplica forças a todos os objetos
@@ -82,6 +86,15 @@ export class World {
             }
         }
 
+        for (let w = 0; w < this.#objects.getCount(); w++) {
+            let obj = this.#objects.getObject(w);
+            if (obj !== null && obj.constructor.name == "Particle") {
+                if (obj.shape.timer.compare() > obj.shape.maxTime) {
+                    this.#objects.del(w);
+                }
+            }
+        }
+
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // ~~ Fase 2:
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,24 +122,23 @@ export class World {
         // Desenha os objetos
         for (let w = 0; w < this.#objects.getCount(); w++) {
             let tempObj = this.#objects.getObject(w);
-            //tempObj.applyForce(new Point(0, .02))
-            tempObj.update();
-            //if (tempObj.constructor.name == "MovableObject") {
-            // Aplica a aceleração final e atualiza os shapes do objeto
-            //tempObj.update(this);
-            if (tempObj.movableObject) {
-                this.#screen.drawItem(tempObj.movableObject, this.#camera);
-            } else {
-                this.#screen.drawItem(tempObj, this.#camera);
-            }
-            if (Properties.velocityLine) {
-                // TODO: delegar estes desenhos para o próprio objeto dentro de um método draw()
+            if (tempObj !== null) {
                 if (tempObj.movableObject) {
-                    this.#screen.drawItem(tempObj.movableObject.velocityShape, this.#camera);
-                    this.#screen.drawItem(tempObj.movableObject.accelerationShape, this.#camera);
+                    //tempObj.applyForce(new Point(0, .2))
+                    tempObj.update();
+                    this.#screen.drawItem(tempObj.movableObject, this.#camera);
                 } else {
-                    this.#screen.drawItem(tempObj.velocityShape, this.#camera);
-                    this.#screen.drawItem(tempObj.accelerationShape, this.#camera);
+                    this.#screen.drawItem(tempObj, this.#camera);
+                }
+                if (Properties.velocityLine) {
+                    // TODO: delegar estes desenhos para o próprio objeto dentro de um método draw()
+                    if (tempObj.movableObject) {
+                        this.#screen.drawItem(tempObj.movableObject.velocityShape, this.#camera);
+                        this.#screen.drawItem(tempObj.movableObject.accelerationShape, this.#camera);
+                    } else {
+                        this.#screen.drawItem(tempObj.velocityShape, this.#camera);
+                        this.#screen.drawItem(tempObj.accelerationShape, this.#camera);
+                    }
                 }
             }
         }

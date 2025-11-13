@@ -22,6 +22,7 @@ export class CircleObject extends Shape {
         config.lineColor = conf.lineColor;
         config.lineWidth = conf.lineWidth;
         config.drawMode = conf.drawMode || Shape.drawModes.UPLEFT;
+        config.maxTime = conf.maxTime || null;
 
         // Calculando vértices. Vértices são sempre calculados pelo centro.
         let numvertices = conf.numvertices || 32;

@@ -3,16 +3,13 @@ import { Timer } from "../util/Timer.js";
 export class Item {
     #id;
     #type;
-    #timer;
-    #creationTime;
     #maxTime;
 
     constructor(config) {
         this.#id = crypto.randomUUID();
         this.#type = config.type || "Item";
-        this.#timer = new Timer();
-        this.#creationTime = this.#timer.now();
-        this.#maxTime = null;
+        this.timer = new Timer();
+        this.#maxTime = config.maxTime || null;
     }
 
     get id() {

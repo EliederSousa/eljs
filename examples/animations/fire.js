@@ -1,6 +1,5 @@
 import { Properties } from "./core/Properties.js";
 import { Keyboard } from "./input/Keyboard.js";
-import { Mouse } from "./input/Mouse.js";
 import { CircleObject } from "./objects/Circle.js";
 import { EmmiterManager } from "./objects/Emmiter.js";
 import { MovableObject } from "./objects/MovableObject.js";
@@ -30,7 +29,7 @@ class Particle extends RigidBody {
             color: fireGradient,
             radius: 30,
             drawMode: Shape.drawModes.CENTER,
-            maxTime: 5000
+            maxTime: 1000
         });
         let velNormal = vel.clone().scale(2);
         let movable = new MovableObject(new Point(pos.x, pos.y), {
@@ -46,11 +45,8 @@ class Particle extends RigidBody {
 
     /** @override */
     clone(newPos) {
-        // Define direção e velocidade baseado no cursor do mouse
-        let dist = new Point(Mouse.x, Mouse.y).distanceTo(newPos)
-        let vel = new Point(Mouse.x - newPos.x, Mouse.y - newPos.y).normal().scale(dist / 100)
         // Define uma direção e magnitude aleatórias
-        //const vel = new Point(0, -MathHelper.randomBetween(.5, 2));
+        const vel = new Point(0, -MathHelper.randomBetween(.5, 2));
         return new Particle(newPos.clone(), vel);
     }
 }
@@ -63,7 +59,7 @@ let fireParticle = new Particle(new Point(0, 0), new Point(0, -1))
 world.addEmitter({
     minTime: 1,
     maxTime: 2,
-    radius: 40,
+    radius: 30,
     position: new Point(world.getScreenCenter().x, world.getScreenCenter().y),
     particle: fireParticle
 })

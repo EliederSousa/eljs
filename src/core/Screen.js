@@ -11,6 +11,7 @@ export class Screen {
         this.bgColor = new Color(0, 0, 0, .2);
         this.zoom = 1;
         this.borderSize = 0;
+        this.drawMode = "source-over";
 
         //Descomente para criar uma borda ao redor do canvas.        
         //this.canvas.style.border = `${this.borderSize}px solid red`;
@@ -37,7 +38,8 @@ export class Screen {
 
     draw() {
         this.context.save();
-        this.context.globalCompositeOperation = "source-over";
+        this.context.globalCompositeOperation = this.drawMode;
+        //this.context.filter = "blur(1px)";
         this.context.fillStyle = this.bgColor.CSS;
         this.context.fillRect(0, 0, this.width, this.height);
         this.context.restore();

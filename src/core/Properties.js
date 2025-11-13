@@ -1,7 +1,7 @@
 export class Properties {
-    static debugBox = true;
-    static velocityLine = true;
+    static debugBox = false;
+    static velocityLine = false;
     static debugEmmiters = false;
-    static maxVelocity = 100;
+    static maxVelocity = 1000;
     static circularScreen = false;
 }

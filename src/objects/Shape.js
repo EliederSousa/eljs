@@ -20,6 +20,7 @@ export class Shape extends Item {
         } else {
             // Propriedades do Item
             config.type = conf.type || "Shape";
+            config.maxTime = conf.maxTime;
             super(config);
 
             // Propriedades do Shape
