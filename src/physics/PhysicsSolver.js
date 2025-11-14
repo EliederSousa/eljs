@@ -13,4 +13,5 @@ export class PhysicsSolver {
     static solveColisions(object_list) {
         // iterate over all objects of a container and do hitTest checks on them.
     }
+
 }

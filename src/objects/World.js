@@ -13,8 +13,8 @@ import { PhysicsSolver } from "../physics/PhysicsSolver.js";
 export class World {
     #emmiters;
     #objects;
-    #screen;
-    #camera;
+    //screen;
+    //camera;
     #timer;
     #debugbox;
     #mainfunction;
@@ -22,15 +22,15 @@ export class World {
     constructor() {
         this.#emmiters = new ObjectContainer();
         this.#objects = new ObjectContainer();
-        this.#screen = new Screen("fullscreen");
-        this.#camera = new Camera(new Point(this.#screen.center.x, this.#screen.center.y));
+        this.screen = new Screen("fullscreen");
+        this.camera = new Camera(new Point(this.screen.center.x, this.screen.center.y));
         this.#debugbox = new DebugBox(new Point(5, 5), { container: this.#objects });
         this.#timer = new Timer();
         this.#mainfunction = null;
     }
 
     getScreenCenter() {
-        return this.#screen.center;
+        return this.screen.center;
     }
 
     registerMainFunction(func) {
@@ -66,12 +66,12 @@ export class World {
         // ~~ Fase 1:
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        if (Keyboard.isDown(Keyboard.NUM7)) this.#camera.decreaseZoom(.05);
-        if (Keyboard.isDown(Keyboard.NUM9)) this.#camera.increaseZoom(.05);
-        if (Keyboard.isDown(Keyboard.NUM8)) this.#camera.moveBy(new Point(0, -5));
-        if (Keyboard.isDown(Keyboard.NUM2)) this.#camera.moveBy(new Point(0, 5));
-        if (Keyboard.isDown(Keyboard.NUM6)) this.#camera.moveBy(new Point(5, 0));
-        if (Keyboard.isDown(Keyboard.NUM4)) this.#camera.moveBy(new Point(-5, 0));
+        if (Keyboard.isDown(Keyboard.NUM7)) this.camera.decreaseZoom(.05);
+        if (Keyboard.isDown(Keyboard.NUM9)) this.camera.increaseZoom(.05);
+        if (Keyboard.isDown(Keyboard.NUM8)) this.camera.moveBy(new Point(0, -5));
+        if (Keyboard.isDown(Keyboard.NUM2)) this.camera.moveBy(new Point(0, 5));
+        if (Keyboard.isDown(Keyboard.NUM6)) this.camera.moveBy(new Point(5, 0));
+        if (Keyboard.isDown(Keyboard.NUM4)) this.camera.moveBy(new Point(-5, 0));
 
         if (this.#mainfunction) {
             this.#mainfunction();
@@ -106,7 +106,7 @@ export class World {
         // ~~ Fase 3:
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        this.#screen.draw();
+        this.screen.draw();
 
         // Emmiters não devem aparecer na cena. Mas podemos desenhar suas áreas e timers se quisermos.
         if (Properties.debugEmmiters) {
@@ -114,7 +114,7 @@ export class World {
                 let emmit = this.#emmiters.getObject(w);
                 if (emmit != null) {
                     emmit.update();
-                    this.#screen.drawItem(emmit, this.#camera);
+                    this.screen.drawItem(emmit, this.camera);
                 }
             }
         }
@@ -126,25 +126,25 @@ export class World {
                 if (tempObj.movableObject) {
                     //tempObj.applyForce(new Point(0, .2))
                     tempObj.update();
-                    this.#screen.drawItem(tempObj.movableObject, this.#camera);
+                    this.screen.drawItem(tempObj.movableObject, this.camera);
                 } else {
-                    this.#screen.drawItem(tempObj, this.#camera);
+                    this.screen.drawItem(tempObj, this.camera);
                 }
                 if (Properties.velocityLine) {
                     // TODO: delegar estes desenhos para o próprio objeto dentro de um método draw()
                     if (tempObj.movableObject) {
-                        this.#screen.drawItem(tempObj.movableObject.velocityShape, this.#camera);
-                        this.#screen.drawItem(tempObj.movableObject.accelerationShape, this.#camera);
+                        this.screen.drawItem(tempObj.movableObject.velocityShape, this.camera);
+                        this.screen.drawItem(tempObj.movableObject.accelerationShape, this.camera);
                     } else {
-                        this.#screen.drawItem(tempObj.velocityShape, this.#camera);
-                        this.#screen.drawItem(tempObj.accelerationShape, this.#camera);
+                        this.screen.drawItem(tempObj.velocityShape, this.camera);
+                        this.screen.drawItem(tempObj.accelerationShape, this.camera);
                     }
                 }
             }
         }
 
         // Desenha a debugBox, se estiver ativada. Para ela, não usamos câmera.
-        if (Properties.debugBox) this.#screen.drawItem(this.#debugbox);
+        if (Properties.debugBox) this.screen.drawItem(this.#debugbox);
         requestAnimationFrame(this.run.bind(this));
     }
 }
