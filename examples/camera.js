@@ -18,7 +18,7 @@ function loop() {
     if (Keyboard.isDown(Keyboard.NUM7)) camera.zoom += .05;
     if (Keyboard.isDown(Keyboard.NUM9)) camera.zoom -= .05;
     screen.draw();
-    camera.update(Camera.easing.easeOutBack);
+    camera.update(Camera.easing.easeInCubic);
     screen.drawItem(rect, camera);
     requestAnimationFrame(loop);
 }

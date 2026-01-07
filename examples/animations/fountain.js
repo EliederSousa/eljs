@@ -1,15 +1,15 @@
 // ----------------------------------------------------------------
 
-import { CircleObject } from "./objects/Circle.js";
-import { MovableObject } from "./objects/MovableObject.js";
-import { RigidBody } from "./objects/RigidBody.js";
-import { Shape } from "./objects/Shape.js";
-import { World } from "./objects/World.js";
-import { Point } from "./physics/Point.js";
-import { Color } from "./util/Color.js";
-import { GradientColor } from "./util/GradientColor.js";
-import { MathHelper } from "./util/MathHelper.js";
-import { Properties } from "./core/Properties.js";
+import { CircleObject } from "../../src/objects/Circle.js";
+import { MovableObject } from "../../src/objects/MovableObject.js";
+import { RigidBody } from "../../src/objects/RigidBody.js";
+import { Shape } from "../../src/objects/Shape.js";
+import { World } from "../../src/objects/World.js";
+import { Point } from "../../src/physics/Point.js";
+import { Color } from "../../src/util/Color.js";
+import { GradientColor } from "../../src/util/GradientColor.js";
+import { MathHelper } from "../../src/util/MathHelper.js";
+import { Properties } from "../../src/core/Properties.js";
 
 let world = new World();
 Properties.velocityLine = false;
@@ -25,11 +25,11 @@ class Particle extends RigidBody {
     constructor(pos, vel) {
         let shape = new CircleObject(new Point(pos.x, pos.y), {
             color: waterGradient,
-            radius: 10,
+            radius: 6 + (Math.random() * 5),
             drawMode: Shape.drawModes.CENTER,
             maxTime: 5000
         });
-        let velNormal = vel.clone().scale(2);
+        let velNormal = vel.clone().scale(1);
         let movable = new MovableObject(new Point(pos.x, pos.y), {
             velocity: new Point(velNormal.x, velNormal.y)
         })
@@ -44,7 +44,7 @@ class Particle extends RigidBody {
     /** @override */
     clone(newPos) {
         // Define uma direção e magnitude aleatórias
-        const vel = new Point(-MathHelper.randomBetween(-.5, .5), -MathHelper.randomBetween(5, 6));
+        const vel = new Point(-MathHelper.randomBetween(-1, 1), -MathHelper.randomBetween(10, 12));
         return new Particle(newPos.clone(), vel);
     }
 }
@@ -54,10 +54,10 @@ let waterParticle = new Particle(new Point(0, 0), new Point(0, -1))
 // ----------------------------------------------------------------
 
 world.addEmitter({
-    minTime: 2,
+    minTime: 1,
     maxTime: 3,
-    radius: 2,
-    position: new Point(1000, 500),
+    radius: 1,
+    position: new Point(world.screen.center.x, 500),
     particle: waterParticle
 })
 

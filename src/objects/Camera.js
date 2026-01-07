@@ -30,7 +30,7 @@ export class Camera extends Item {
         this.target = point.clone();
 
         // Fator de suavização (0.1 = lento, 1 = instantâneo)
-        this.smoothFactor = config.smoothFactor || 0.1;
+        this.smoothFactor = config.smoothFactor || 0.3;
 
         this.easingType = config.easingType || "linear";
 
@@ -58,7 +58,7 @@ export class Camera extends Item {
                 return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1.3;
             },
 
-            // Suavização tipo “back” (ultrapassa um pouco e volta)
+            // Suavização (ultrapassa um pouco e volta)
             easeOutBack: t => {
                 const c1 = 1.70158;
                 const c3 = c1 + 1;

@@ -1,15 +1,15 @@
-import { Properties } from "./core/Properties.js";
-import { Keyboard } from "./input/Keyboard.js";
-import { CircleObject } from "./objects/Circle.js";
-import { EmmiterManager } from "./objects/Emmiter.js";
-import { MovableObject } from "./objects/MovableObject.js";
-import { RigidBody } from "./objects/RigidBody.js";
-import { Shape } from "./objects/Shape.js";
-import { World } from "./objects/World.js";
-import { Point } from "./physics/Point.js";
-import { Color } from "./util/Color.js";
-import { GradientColor } from "./util/GradientColor.js";
-import { MathHelper } from "./util/MathHelper.js";
+import { Properties } from "../../src/core/Properties.js";
+import { Keyboard } from "../../src/input/Keyboard.js";
+import { CircleObject } from "../../src/objects/Circle.js";
+import { EmmiterManager } from "../../src/objects/Emmiter.js";
+import { MovableObject } from "../../src/objects/MovableObject.js";
+import { RigidBody } from "../../src/objects/RigidBody.js";
+import { Shape } from "../../src/objects/Shape.js";
+import { World } from "../../src/objects/World.js";
+import { Point } from "../../src/physics/Point.js";
+import { Color } from "../../src/util/Color.js";
+import { GradientColor } from "../../src/util/GradientColor.js";
+import { MathHelper } from "../../src/util/MathHelper.js";
 
 // ----------------------------------------------------------------
 // Crie e declare os objetos/propriedades globais

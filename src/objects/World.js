@@ -123,8 +123,13 @@ export class World {
         for (let w = 0; w < this.#objects.getCount(); w++) {
             let tempObj = this.#objects.getObject(w);
             if (tempObj !== null) {
+                switch (tempObj.constructor.name) {
+                    case "Grid":
+                        this.screen.drawItem(tempObj, this.camera);
+                        break;
+                }
                 if (tempObj.movableObject) {
-                    //tempObj.applyForce(new Point(0, .2))
+                    tempObj.applyForce(new Point(0, .2))
                     tempObj.update();
                     this.screen.drawItem(tempObj.movableObject, this.camera);
                 } else {
