@@ -9,5 +9,5 @@
     "include": [
         "**/*.js",
         "**/*.d.ts"
-    ]
+, "src/core/Screen.ts"    ]
 }
