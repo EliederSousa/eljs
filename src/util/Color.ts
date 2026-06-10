@@ -1,5 +1,20 @@
+/**
+ * Representa uma cor no formato RGBA e fornece métodos utilitários para 
+ * manipulação e conversão para CSS, RGB e Hexadecimal.
+ */
 export class Color {
-    static colors = {
+    // Usando `private` (ou `#`) para proteger o estado interno.
+    // Propriedades internas renomeadas com `_` para evitar conflito com os getters.
+    private _r: number;
+    private _g: number;
+    private _b: number;
+    private _a: number;
+    private _CSSString: string;
+
+    /**
+     * Dicionário estático contendo paletas de cores pré-definidas (incluindo Padrão W3C).
+     */
+    public static colors = {
         W3C: {
             "black": [0, 0, 0],
             "dimgray": [105, 105, 105],
@@ -887,101 +902,163 @@ export class Color {
         "milk_white": [254, 252, 255],
         "half_white": [255, 254, 250],
         "white": [255, 255, 255],
-    }
-
-    /** @private */
-    toCSS() {
-        return `rgba(${(this.r * 255) >> 0}, ${(this.g * 255) >> 0}, ${(this.b * 255) >> 0}, ${this.a})`;
-    }
+    };
 
     /**
-     * Cria uma cor.
-     * @param {number|Array|undefined} r - Valor de vermelho (0-1), ou array [r,g,b,a].
-     * @param {number} g - Valor de verde (0-1), opcional.
-     * @param {number} b - Valor de azul (0-1), opcional.
-     * @param {number} a - Valor de alfa (0-1), opcional.
+     * @summary Instancia uma nova cor.
+     * Este construtor suporta sobrecarga e pode ser inicializado de duas formas.
      */
-    constructor(r = 0, g = null, b = null, a = 1) {
-        this.a = a;
-        if (Array.isArray(r)) {
-            this.r = r[0] / 255;
-            this.g = r[1] / 255;
-            this.b = r[2] / 255;
-            this.a = r[3] ? (r[3] / 255) : 1;
-        } else if (g !== null && b !== null && a !== null) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
+
+    /**
+     * Cria uma cor a partir de uma array contendo os canais de cor.
+     * @param {readonly number[] | number[]} rgbArray - Uma lista contendo os valores `[R, G, B]` ou `[R, G, B, A]`.
+     * Os valores dos canais RGB devem estar na escala de **0 a 255** (padrão de dicionários e paletas), 
+     * e o canal alfa opcional de **0 a 1**.
+     * @example
+     * // Cria a cor usando a array do dicionário [176, 223, 0]
+     * const acidGreen = new Color(Color.colors.acid_green);
+     */
+    constructor(rgbArray: readonly number[] | number[]);
+
+    /**
+     * Cria uma cor passando os valores individuais de cada canal de forma fracionária.
+     * @param {number} r - Valor do canal vermelho (red), de **0 a 1**.
+     * @param {number} g - Valor do canal verde (green), de **0 a 1**.
+     * @param {number} b - Valor do canal azul (blue), de **0 a 1**.
+     * @param {number} [a=1] - Valor opcional do canal alfa/opacidade, de **0 a 1** (padrão é 1).
+     * @example
+     * // Cria um vermelho puro com 50% de opacidade
+     * const transRed = new Color(1, 0, 0, 0.5);
+     */
+    constructor(r: number, g: number, b: number, a?: number);
+
+    /**
+     * Implementação interna do construtor que gerencia e normaliza as sobrecargas.
+     */
+    constructor(firstParam: number | readonly number[] | number[], g?: number, b?: number, a: number = 1) {
+        // Se o primeiro parâmetro for uma Array (ex: Color.colors.acid_green)
+        if (Array.isArray(firstParam) || (typeof firstParam === "object" && firstParam !== null)) {
+            const rgb = firstParam as readonly number[];
+
+            // Como no dicionário os números estão de 0 a 255, normalizamos dividindo por 255
+            this._r = rgb[0] / 255;
+            this._g = rgb[1] / 255;
+            this._b = rgb[2] / 255;
+
+            // Se houver um quarto elemento na array (alfa), usa ele; senão, adota opacidade total (1)
+            this._a = rgb[3] !== undefined ? rgb[3] : 1;
         } else {
-            // escala de cinza
-            this.r = this.g = this.b = r;
+            // Se forem os parâmetros individuais tradicionais (escala de 0-1)
+            this._r = firstParam;
+            this._g = g ?? 0;
+            this._b = b ?? 0;
+            this._a = a;
         }
 
-        this._CSSString = this.toCSS();
+        // Inicializa o cache da string utilizada no CSS
+        this._CSSString = this.generateCSSString();
     }
 
-    /** Getters/Setters para atualizar valores e CSS */
-    set red(n) { this.r = n; this._CSSString = this.toCSS(); }
-    set green(n) { this.g = n; this._CSSString = this.toCSS(); }
-    set blue(n) { this.b = n; this._CSSString = this.toCSS(); }
-    set alpha(n) { this.a = n; this._CSSString = this.toCSS(); }
+    /** Canal de cor vermelho (red). */
+    public get red(): number { return this._r; }
 
-    get red() { return this.r; }
-    get green() { return this.g; }
-    get blue() { return this.b; }
-    get alpha() { return this.a; }
+    /** Canal de cor verde (green). */
+    public get green(): number { return this._g; }
+
+    /** Canal de cor azul (blue). */
+    public get blue(): number { return this._b; }
+
+    /** Canal de opacidade (alpha). */
+    public get alpha(): number { return this._a; }
 
     /** 
-     * Retorna a string CSS rgba da cor.
-     * @returns {string} 'rgba(r,g,b,a)'
+     * Retorna a string CSS `rgba()` correspondente à cor.
+     * @returns {string} String no formato 'rgba(r,g,b,a)'
      */
-    get CSS() { return this._CSSString; }
-
-    /**
-     * Retorna uma cópia da cor.
-     * @returns {Color}
-     */
-    clone() {
-        return new Color(this.r, this.g, this.b, this.a);
+    public get CSS(): string {
+        return this._CSSString;
     }
 
-    toRGB255() {
+    /**
+     * Método interno para gerar a string CSS com base no estado atual.
+     * @private
+     * @returns {string}
+     */
+    private generateCSSString(): string {
+        const rgb = this.toRGB255();
+        return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${this._a})`;
+    }
+
+    /**
+     * Cria e retorna uma cópia exata desta instância de cor.
+     * @returns {Color} Uma nova instância da classe `Color`.
+     */
+    public clone(): Color {
+        return new Color(this._r, this._g, this._b, this._a);
+    }
+
+    /**
+     * Cria uma instância de `Color` a partir de um nome de cor predefinido.
+     * Busca o nome fornecido (ignorando maiúsculas e minúsculas) no dicionário de 
+     * cores customizadas e no padrão W3C da classe.
+     *
+     * @param {string} name - O nome da cor a ser buscada (ex: 'red', 'MidnightBlue', 'white').
+     * @returns {Color} Uma nova instância da classe `Color` com os valores RGB correspondentes.
+     * @throws {Error} Lança um erro caso o nome da cor não seja encontrado nos dicionários.
+     * @example
+     * const background = Color.fromName('WhiteSmoke'); 
+     * console.log(background.CSS); // Imprime: "rgba(245, 245, 245, 1)"
+     */
+    public static fromName(name: string): Color {
+        const lowerName = name.toLowerCase();
+
+        // "number[]" diz ao TS que o retorno será uma lista de números.
+        const w3cDict = Color.colors.W3C as Record<string, Object>;
+        const customDict = Color.colors as Record<string, Object>;
+
+        const rgb: any = w3cDict[lowerName] || customDict[lowerName];
+
+        if (!rgb) {
+            throw new Error(`Cor desconhecida: "${name}"`);
+        }
+
+        return new Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
+    }
+
+    /**
+     * Converte os valores fracionários da cor (0-1) para a escala absoluta de 0 a 255.
+     * @returns {{r: number, g: number, b: number}} Objeto contendo os valores arredondados.
+     */
+    public toRGB255(): { r: number; g: number; b: number } {
         return {
-            r: Math.round(this.r * 255),
-            g: Math.round(this.g * 255),
-            b: Math.round(this.b * 255)
+            r: Math.round(this._r * 255),
+            g: Math.round(this._g * 255),
+            b: Math.round(this._b * 255)
         };
     }
 
-    toHex2(n) {
+    /**
+     * Converte um valor numérico decimal para sua representação hexadecimal de 2 dígitos.
+     * @private
+     * @param {number} n - Valor a ser convertido.
+     * @returns {string} String contendo 2 caracteres hexadecimais (ex: '0f', 'ff').
+     */
+    private toHex2(n: number): string {
         const s = n.toString(16);
         return s.length === 1 ? "0" + s : s;
     }
 
     /**
-     * Converte a cor para hexadecimal.
-     * @returns {string} '#rrggbb'
+     * Converte a cor para o formato hexadecimal web comum.
+     * @returns {string} Uma string representando a cor em HEX no formato '#rrggbb'.
+     * @example
+     * const cor = new Color(1, 0, 0); // Vermelho puro
+     * console.log(cor.toHex()); // Imprime: "#ff0000"
      */
-    toHex() {
-        const r = this.toHex2((this.r * 255) >> 0);
-        const g = this.toHex2((this.g * 255) >> 0);
-        const b = this.toHex2((this.b * 255) >> 0);
+    public toHex(): string {
+        const r = this.toHex2((this._r * 255) >> 0);
+        const g = this.toHex2((this._g * 255) >> 0);
+        const b = this.toHex2((this._b * 255) >> 0);
         return `#${r}${g}${b}`;
     }
-
-    /**
-     * Interpola linearmente entre esta cor e outra.
-     * @param {Color} other - Outra cor.
-     * @param {number} t - Valor entre 0 e 1.
-     * @returns {Color} Nova cor interpolada.
-     */
-    lerp(other, t) {
-        const r = this.r + (other.r - this.r) * t;
-        const g = this.g + (other.g - this.g) * t;
-        const b = this.b + (other.b - this.b) * t;
-        const a = this.a + (other.a - this.a) * t;
-        return new Color([r, g, b, a]);
-    }
-
 }

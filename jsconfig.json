@@ -4,10 +4,11 @@
         "checkJs": true
     },
     "exclude": [
-        "node_modules"
+        "node_modules",
+        ".vite"
     ],
     "include": [
-        "**/*.js",
-        "**/*.d.ts"
-, "src/core/Screen.ts"    ]
+        "**/*.d.ts",
+        "src/**/*.ts"
+    ]
 }

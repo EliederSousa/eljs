@@ -7,15 +7,31 @@ import { Point } from "../physics/Point.js";
 import { Color } from "./Color.js";
 import { ObjectContainer } from "./ObjectContainer.js";
 
+/**
+ * Debug overlay that displays FPS, mouse coords, key states,
+ * and object count on screen.
+ */
 export class DebugBox extends Item {
-    constructor(POINT = new Point(5, 5), CONF) {
-        let CONFIG = { type: "DebuxBox", };
+    position: Point;
+    boxLines: number;
+    box: RectangleObject;
+    objectContainer: ObjectContainer<any> | string;
+    versionText: TextObject;
+    mouseText: TextObject;
+    booleanText: TextObject;
+    lastFrameTime: number;
+    frameCount: number;
+    fps: number;
+    lastFpsUpdate: number;
+
+    constructor(POINT = new Point(5, 5), CONF: { container?: ObjectContainer<any> }) {
+        const CONFIG = { type: "DebuxBox" };
         super(CONFIG);
         this.position = POINT;
         this.boxLines = 6;
         this.box = new RectangleObject(new Point(this.position.x, this.position.y), {
             color: new Color(0, 0, 0, 0),
-            lineColor: new Color(Color.colors.green),
+            lineColor: new Color(Color.colors.green as unknown as number[]),
             lineWidth: 1,
             width: this.position.x + 140,
             height: this.position.y + 15 * this.boxLines + 14,
@@ -24,24 +40,24 @@ export class DebugBox extends Item {
 
         this.versionText = new TextObject(new Point(0, 0), {
             text: "",
-            color: new Color(Color.colors.tomato),
-            font: 'Courier New',
+            color: new Color(Color.colors.tomato as unknown as number[]),
+            font: "Courier New",
             size: 13,
-            bold: true
+            bold: true,
         });
 
         this.mouseText = new TextObject(new Point(0, 0), {
             text: "",
-            color: new Color(Color.colors.white),
-            font: 'Courier New',
+            color: new Color(Color.colors.white as unknown as number[]),
+            font: "Courier New",
             size: 12,
-            bold: true
+            bold: true,
         });
 
         this.booleanText = new TextObject(new Point(0, 0), {
             text: "",
-            color: new Color(Color.colors.silver),
-            font: 'Courier New',
+            color: new Color(Color.colors.silver as unknown as number[]),
+            font: "Courier New",
             size: 12,
             bold: true,
         });
@@ -50,9 +66,9 @@ export class DebugBox extends Item {
         this.frameCount = 0;
         this.fps = 0;
         this.lastFpsUpdate = performance.now();
-    };
+    }
 
-    updateFps() {
+    updateFps(): void {
         const now = performance.now();
         this.frameCount++;
         if (now - this.lastFpsUpdate >= 1000) {
@@ -63,12 +79,12 @@ export class DebugBox extends Item {
         this.lastFrameTime = now;
     }
 
-    setPosition(X, Y) {
+    setPosition(X: number, Y: number): void {
         this.position.x = X;
         this.position.y = Y;
     }
 
-    draw(canvas_context, camera, screen) {
+    draw(canvas_context: CanvasRenderingContext2D, camera: any, screen: any): void {
         this.updateFps();
         let xTemp = this.position.x + 5;
         let yTemp = this.position.y + 15;
@@ -90,25 +106,25 @@ export class DebugBox extends Item {
 
         this.booleanText.position = new Point(xTemp + 30 + screen.measureText(this.mouseText.text).width, yTemp);
         this.booleanText.text = "" + Mouse.isDown;
-        this.booleanText.color = Mouse.isDown ? new Color(Color.colors.lime) : new Color(Color.colors.red_wine);
+        this.booleanText.color = Mouse.isDown ? new Color(Color.colors.lime as unknown as number[]) : new Color(Color.colors.red_wine as unknown as number[]);
         screen.drawItem(this.booleanText);
 
-        this.mouseText.position = new Point(xTemp, yTemp += 15)
+        this.mouseText.position = new Point(xTemp, yTemp += 15);
         this.mouseText.text = "SHIFT:";
         screen.drawItem(this.mouseText);
 
         this.booleanText.position = new Point(xTemp + 20 + screen.measureText(this.mouseText.text).width, yTemp);
         this.booleanText.text = "" + Keyboard.isDown(Keyboard.SHIFTLEFT);
-        this.booleanText.color = Keyboard.isDown(Keyboard.SHIFTLEFT) ? new Color(Color.colors.lime) : new Color(Color.colors.red_wine);
+        this.booleanText.color = Keyboard.isDown(Keyboard.SHIFTLEFT) ? new Color(Color.colors.lime as unknown as number[]) : new Color(Color.colors.red_wine as unknown as number[]);
         screen.drawItem(this.booleanText);
 
-        this.mouseText.position = new Point(xTemp, yTemp += 15)
+        this.mouseText.position = new Point(xTemp, yTemp += 15);
         this.mouseText.text = "CONTROL:";
         screen.drawItem(this.mouseText);
 
         this.booleanText.position = new Point(xTemp + 15 + screen.measureText(this.mouseText.text).width, yTemp);
         this.booleanText.text = "" + Keyboard.isDown(Keyboard.CONTROLLEFT);
-        this.booleanText.color = Keyboard.isDown(Keyboard.CONTROLLEFT) ? new Color(Color.colors.lime) : new Color(Color.colors.red_wine);
+        this.booleanText.color = Keyboard.isDown(Keyboard.CONTROLLEFT) ? new Color(Color.colors.lime as unknown as number[]) : new Color(Color.colors.red_wine as unknown as number[]);
         screen.drawItem(this.booleanText);
 
         this.mouseText.position = new Point(xTemp, yTemp += 15);
@@ -117,5 +133,5 @@ export class DebugBox extends Item {
 
         this.box.position = new Point(this.position.x, this.position.y);
         screen.drawItem(this.box);
-    };
+    }
 }
