@@ -180,7 +180,6 @@ export class World {
                         break;
                 }
                 if (tempObj.movableObject) {
-                    tempObj.applyForce(new Point(0, 0.2));
                     tempObj.update();
                     this.screen.drawItem(tempObj.movableObject, this.camera);
                 } else {

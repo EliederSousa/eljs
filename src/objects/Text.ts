@@ -8,16 +8,29 @@ import { Item } from "./Item.js";
  * so it does not have vertices or drawMode.
  */
 export class TextObject extends Item {
+    /** Position (x, y) on the canvas. */
     position: any;
+    /** Fill colour of the text. */
     color: Color;
+    /** Optional stroke colour for outlined text. */
     lineColor?: Color;
+    /** Stroke width when `lineColor` is set. */
     lineWidth?: number;
+    /** String content to render. */
     text: string;
+    /** Font family name (e.g. `"Consolas"`, `"Arial"`). */
     font: string;
+    /** Font size in pixels. Default: 14. */
     size: number;
+    /** Font weight string (`"bold"` or `""`). */
     bold: string;
+    /** Font style string (`"italic"` or `""`). */
     italic: string;
 
+    /**
+     * @param POINT - Position on the canvas.
+     * @param CONF - Configuration object or plain text string. If a string, it is used as `text`.
+     */
     constructor(POINT: any, CONF: string | Record<string, any>) {
         const isString = typeof CONF === "string";
         const CONFIG: Record<string, any> = {
@@ -41,12 +54,20 @@ export class TextObject extends Item {
         this.italic = CONFIG.italic;
     }
 
+    /**
+     * Sets the font weight to bold if `mode` is `"bold"`.
+     * @param mode - Pass `"bold"` to enable bold, any other value is ignored.
+     */
     setWeight(mode: string): void {
         if (mode === "bold") {
             this.bold = "bold";
         }
     }
 
+    /**
+     * Renders the text string on the canvas.
+     * @param canvas_context - Canvas 2D rendering context.
+     */
     draw(canvas_context: CanvasRenderingContext2D): void {
         canvas_context.font = `${this.bold} ${this.italic} ${this.size}px ${this.font}`;
         canvas_context.fillStyle = (this.color as any).CSS ?? this.color as any;

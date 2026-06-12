@@ -3,16 +3,25 @@ import { Color } from "../util/Color.js";
 import { Shape } from "./Shape.js";
 
 /**
- * Config accepted by `RectangleObject` constructor.
+ * Configuration accepted by the `RectangleObject` constructor.
+ * Extends the visual properties available on every `Shape`.
  */
 export interface RectangleConfig {
+    /** Width of the rectangle in pixels. */
     width: number;
+    /** Height of the rectangle in pixels. */
     height: number;
+    /** Fill colour. Default: opaque white. */
     color?: Color;
+    /** Stroke colour. No stroke if omitted. */
     lineColor?: Color;
+    /** Stroke width in pixels. */
     lineWidth?: number;
+    /** How `position` is interpreted: `"UPLEFT"`, `"CENTER"`, or `"VERTICES"`. Default: `"UPLEFT"`. */
     drawMode?: string;
+    /** Rotation angle in degrees. Default: 0. */
     rotation?: number;
+    /** Whether the rectangle is drawn. Default: true. */
     visible?: boolean;
 }
 
@@ -28,9 +37,16 @@ export interface RectangleConfig {
  * });
  */
 export class RectangleObject extends Shape {
+    /** Width of the rectangle in pixels. */
     width: number;
+    /** Height of the rectangle in pixels. */
     height: number;
 
+    /**
+     * @param position - Position of the rectangle (interpreted per `drawMode`).
+     * @param conf - Configuration object. See `RectangleConfig`.
+     * @throws If `position` is not a `Point` instance.
+     */
     constructor(position: Point, conf: RectangleConfig) {
         if (!(position instanceof Point)) {
             throw new Error("RectangleObject::constructor: position não é instância da classe Point.");
@@ -69,6 +85,10 @@ export class RectangleObject extends Shape {
         ];
     }
 
+    /**
+     * Injects `width` and `height` into the clone configuration.
+     * Called internally by `Shape.clone()`.
+     */
     protected _localClone(conf: any): void {
         conf.width = this.width;
         conf.height = this.height;

@@ -3,12 +3,23 @@ import { Color } from "../util/Color.js";
 import { Shape } from "./Shape.js";
 
 /**
- * LineObject — a line segment defined by two points.
+ * LineObject — a line segment defined by a start point (inherited `position`) and an end point (`to`).
+ *
+ * @example
+ * const line = new LineObject(new Point(0, 0), {
+ *   to: new Point(100, 100),
+ *   lineColor: new Color(1, 0, 0, 1),
+ *   lineWidth: 2,
+ * });
  */
 export class LineObject extends Shape {
     /** End point of the line segment. */
     to: Point;
 
+    /**
+     * @param position - Start point of the line.
+     * @param conf - Configuration with required `to` point and optional Shape properties (color, lineColor, lineWidth, drawMode, etc.).
+     */
     constructor(position: Point, conf: { to: Point } & Record<string, any>) {
         const config: any = { ...conf, type: "Line" };
         config.rotation = conf.rotation ?? 0;
@@ -27,10 +38,19 @@ export class LineObject extends Shape {
         this.to = conf.to;
     }
 
+    /**
+     * Injects the `to` point into the clone configuration.
+     * Called internally by `Shape.clone()`.
+     */
     protected _localClone(conf: any): void {
         conf.to = this.to;
     }
 
+    /**
+     * Draws the line segment on the canvas.
+     * Handles `UPLEFT`, `CENTER`, and `VERTICES` draw modes.
+     * @param canvas_context - Canvas 2D rendering context.
+     */
     draw(canvas_context: CanvasRenderingContext2D): void {
         if (!this.visible) return;
         if (this.drawMode === "VERTICES") {

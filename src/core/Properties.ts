@@ -17,6 +17,9 @@ export class Properties {
     /** Maximum velocity magnitude for any MovableObject. */
     static maxVelocity = 1000;
 
+    static gravity = -0.1;
+    static wind = 1;
+
     /** Wrap objects around screen edges instead of letting them escape. */
     static circularScreen = false;
 }
