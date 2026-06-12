@@ -175,8 +175,8 @@ export class MovableObject extends Item {
         this.acceleration.add(force);
     }
 
-    update(dt: number, ENV?: Environment): void {
-        
+    update(dt: number, screen: Screen): void {
+
         if (this.mass !== Infinity) {
             this.velocity.add(this.acceleration);
             this.velocity.limit(this.maxVelocity);
@@ -187,11 +187,11 @@ export class MovableObject extends Item {
             this.position.add(currentVel);
         }
 
-        if (Properties.circularScreen && ENV) {
-            if (this.position.x > ENV.screen.width) this.position.sub(new Point(ENV.screen.width, 0));
-            if (this.position.y > ENV.screen.height) this.position.sub(new Point(0, ENV.screen.height));
-            if (this.position.x < 0) this.position.add(new Point(ENV.screen.width, 0));
-            if (this.position.y < 0) this.position.add(new Point(0, ENV.screen.height));
+        if (Properties.circularScreen && screen) {
+            if (this.position.x > screen.width) this.position.sub(new Point(screen.width, 0));
+            if (this.position.y > screen.height) this.position.sub(new Point(0, screen.height));
+            if (this.position.x < 0) this.position.add(new Point(screen.width, 0));
+            if (this.position.y < 0) this.position.add(new Point(0, screen.height));
         }
 
         // 1. Atualiza a física da rotação primeiro

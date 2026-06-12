@@ -167,7 +167,7 @@ export class World {
         allobjects.forEach((obj: any[]) => {
             if (obj && obj.constructor.name === "RigidBody") {
                 PhysicsSolver.applyForces(obj);
-                obj.update(dt);
+                obj.update(dt, this.screen);
             }
         });
 

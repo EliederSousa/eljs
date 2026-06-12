@@ -9,7 +9,7 @@ export class Properties {
     static debugBox = true;
 
     /** Draw velocity and acceleration debug lines on moving objects. */
-    static velocityLine = true;
+    static velocityLine = false;
 
     /** Draw emitter areas and timers. */
     static debugEmmiters = false;
@@ -22,5 +22,5 @@ export class Properties {
     static wind = 0;
 
     /** Wrap objects around screen edges instead of letting them escape. */
-    static circularScreen = false;
+    static circularScreen = true;
 }

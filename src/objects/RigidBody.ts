@@ -43,11 +43,11 @@ export class RigidBody {
      * Delega para `MovableObject.update()`, que aplica
      * velocidade, aceleração e sincroniza a posição do shape.
      */
-    update(dt: number): void {
+    update(dt: number, screen: Screen): void {
         if (this.isStatic) {
             this.shape.updateVertices();
         }
-        this.movableObject.update(dt);
+        this.movableObject.update(dt, screen);
     }
 
     /**

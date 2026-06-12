@@ -29,7 +29,6 @@ class Particle extends RigidBody {
         const shape = new CircleObject(pos.clone(), {
             color: fireGradient,
             radius: 30,
-            drawMode: Shape.drawModes.CENTER,
             maxTime: 1000,
         });
         const velNormal = vel.clone().scale(2);

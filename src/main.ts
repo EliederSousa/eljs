@@ -10,8 +10,8 @@ const BALL_RADIUS = 10;
 const SPREAD = 40;
 
 let balls: RigidBody[] = [];
-for (let i = 0; i < 10; i++) {
-    const angle = (i / 10) * Math.PI * 2;
+for (let i = 0; i < 100; i++) {
+    const angle = (i / 100) * Math.PI * 2;
     const offset = new Point(Math.cos(angle) * SPREAD, Math.sin(angle) * SPREAD);
     balls.push(new RigidBody({
         shape: new CircleObject(new Point(100 + offset.x, 100 + offset.y), {
@@ -23,10 +23,11 @@ for (let i = 0; i < 10; i++) {
 }
 
 let floor = new RigidBody({
-    shape: new RectangleObject(new Point(20, 400), {
+    shape: new RectangleObject(new Point(200, 400), {
         width: 400,
         height: 10,
         color: Color.fromName("white"),
+        rotation: 10,
     }),
     velocity: new Point(0, 0),
     mass: Infinity,
@@ -34,10 +35,11 @@ let floor = new RigidBody({
 })
 
 let floor2 = new RigidBody({
-    shape: new RectangleObject(new Point(20, 200), {
+    shape: new RectangleObject(new Point(700, 200), {
         width: 200,
         height: 10,
         color: Color.fromName("white"),
+        rotation: 10,
     }),
     velocity: new Point(0, 0),
     mass: Infinity,
@@ -45,10 +47,11 @@ let floor2 = new RigidBody({
 })
 
 let floor3 = new RigidBody({
-    shape: new RectangleObject(new Point(275, 300), {
+    shape: new RectangleObject(new Point(1200, 300), {
         width: 200,
         height: 10,
         color: Color.fromName("white"),
+        rotation: -10,
     }),
     velocity: new Point(0, 0),
     mass: Infinity,
