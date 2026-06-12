@@ -128,7 +128,7 @@ export class MovableObject extends Item {
         this.velocity = conf.velocity.clone();
         this.acceleration = conf.acceleration?.clone() ?? new Point(0, 0);
         this.maxVelocity = conf.maxVelocity ?? Properties.maxVelocity;
-        this.rotation = conf.rotation ?? 0;
+        this.rotation = conf.rotation ?? shape.rotation ?? 0;
         this.velRotation = conf.velRotation ?? 0;
         this.rotationDecay = conf.rotationDecay ?? 0.985;
         this.cloneData = conf;
@@ -170,30 +170,19 @@ export class MovableObject extends Item {
      * @param F - Vetor de força a ser aplicado.
      */
     applyForce(F: Point): void {
+        if (this.mass === Infinity) return;
+
         const force = F.clone();
         force.scale(1 / this.mass);
         this.acceleration.add(force);
     }
 
-    /**
-     * Avança a simulação física em um frame.
-     *
-     * Ordem de operações:
-     * 1. Soma aceleração à velocidade.
-     * 2. Limita a velocidade ao máximo permitido.
-     * 3. Soma velocidade à posição.
-     * 4. Aplica wraparound de tela (se `Properties.circularScreen` ativo).
-     * 5. Sincroniza posição e rotação no shape.
-     * 6. Aplica decaimento da rotação angular.
-     * 7. Atualiza linhas de debug (se `Properties.velocityLine` ativo).
-     * 8. Zera a aceleração para o próximo frame.
-     *
-     * @param ENV - Ambiente com dimensões da tela. Necessário para wraparound.
-     */
     update(ENV?: Environment): void {
-        this.velocity.add(this.acceleration);
-        this.velocity.limit(this.maxVelocity);
-        this.position.add(this.velocity);
+        if (this.mass !== Infinity) {
+            this.velocity.add(this.acceleration);
+            this.velocity.limit(this.maxVelocity);
+            this.position.add(this.velocity);
+        }
 
         if (Properties.circularScreen && ENV) {
             if (this.position.x > ENV.screen.width) this.position.sub(new Point(ENV.screen.width, 0));
@@ -202,12 +191,19 @@ export class MovableObject extends Item {
             if (this.position.y < 0) this.position.add(new Point(0, ENV.screen.height));
         }
 
-        this.shape.position = this.position;
-        this.shape.rotation = this.rotation;
-
+        // 1. Atualiza a física da rotação primeiro
         if (Math.abs(this.velRotation) > 0.001) {
             this.rotation += this.velRotation;
             this.velRotation *= this.rotationDecay;
+        }
+
+        // 2. Sincroniza o Shape com os novos dados físicos calculados NESTE frame
+        this.shape.position = this.position;
+        this.shape.rotation = this.rotation;
+
+        // 3. CRÍTICO: Força a geometria do shape a recalcular os vértices no mundo
+        if (typeof this.shape.updateVertices === "function") {
+            this.shape.updateVertices();
         }
 
         if (Properties.velocityLine) {

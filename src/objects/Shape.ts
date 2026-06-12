@@ -7,16 +7,6 @@ import { Item } from "./Item.js";
 // ─────────────────────────────────────────────
 
 /**
- * Modos de desenho disponíveis para um Shape.
- *
- * - `UPLEFT`   — a posição representa o canto superior esquerdo da forma.
- * - `CENTER`   — a posição representa o centro da forma.
- * - `VERTICES` — a forma é desenhada diretamente a partir de seus vértices,
- *                usando `drawVertices()` em vez de primitivas do canvas.
- */
-export type DrawMode = "UPLEFT" | "CENTER" | "VERTICES";
-
-/**
  * Configuração aceita pelo construtor de `Shape`.
  * Subclasses podem estender esta interface adicionando seus próprios campos
  * (ex: `radius` em `CircleObject`, `width`/`height` em `RectangleObject`).
@@ -42,12 +32,6 @@ export interface ShapeConfig {
 
   /** Espessura do contorno em pixels. */
   lineWidth?: number;
-
-  /**
-   * Como a posição é interpretada no desenho.
-   * Padrão: "UPLEFT".
-   */
-  drawMode?: DrawMode;
 
   /**
    * Lista de vértices pré-calculados.
@@ -77,19 +61,6 @@ export interface ShapeConfig {
  */
 export abstract class Shape extends Item {
 
-  /**
-   * Modos de desenho disponíveis como objeto estático,
-   * para uso sem importar o tipo `DrawMode` separadamente.
-   *
-   * @example
-   * config.drawMode = Shape.drawModes.CENTER;
-   */
-  static drawModes: Record<DrawMode, DrawMode> = {
-    UPLEFT: "UPLEFT",
-    CENTER: "CENTER",
-    VERTICES: "VERTICES",
-  };
-
   /** Posição do shape na cena (interpretada conforme `drawMode`). */
   position: Point;
 
@@ -107,9 +78,6 @@ export abstract class Shape extends Item {
 
   /** Espessura do contorno em pixels. `undefined` = sem contorno. */
   lineWidth?: number;
-
-  /** Como a `position` é interpretada ao desenhar. */
-  drawMode: DrawMode;
 
   /**
    * Vértices do shape em coordenadas de mundo.
@@ -139,12 +107,6 @@ export abstract class Shape extends Item {
     this.color = conf.color ?? new Color(1, 1, 1, 1);
     this.lineColor = conf.lineColor;
     this.lineWidth = conf.lineWidth;
-
-    this.drawMode = conf.drawMode ?? Shape.drawModes.UPLEFT;
-
-    if (!(this.drawMode in Shape.drawModes)) {
-      throw new Error("Shape::constructor: drawMode inválido.");
-    }
 
     if (!conf.vertices) {
       throw new Error("Shape::constructor: não foi passado um Array de vértices válido.");
@@ -194,7 +156,6 @@ export abstract class Shape extends Item {
       color: this.color?.clone(),
       lineColor: this.lineColor?.clone(),
       lineWidth: this.lineWidth,
-      drawMode: this.drawMode,
       vertices: this.vertices.map(v => v.clone()),
     };
     const pos = newposition ? newposition.clone() : this.position.clone();
@@ -213,7 +174,7 @@ export abstract class Shape extends Item {
    *   (conf as CircleConfig).radius = this.radius;
    * }
    */
-  protected _localClone(conf: ShapeConfig): void {}
+  protected _localClone(conf: ShapeConfig): void { }
 
   /**
    * Calcula e retorna o centro geométrico do shape
@@ -229,21 +190,28 @@ export abstract class Shape extends Item {
     return new Point(sumX / this.vertices.length, sumY / this.vertices.length);
   }
 
-  /**
-   * Desenha o shape usando seus vértices diretamente via `canvas_context.beginPath()`.
-   * Usado quando `drawMode === "VERTICES"`.
-   * Suporta `Color` sólida e `GradientColor` radial.
-   *
-   * @param canvas_context - Contexto 2D do canvas.
-   */
+
   protected drawVertices(canvas_context: CanvasRenderingContext2D): void {
+    canvas_context.save();
+
+    // ================================================================
+    // = Inicio do desenho da forma: itera sobre cada vértice
+    // ================================================================
     canvas_context.beginPath();
+    // 1. Move o ponteiro para o primeiro vértice
     canvas_context.moveTo(this.vertices[0].x, this.vertices[0].y);
+    // 2. Desenha uma linha passando por cada vértice
     for (let i = 1; i < this.vertices.length; i++) {
       canvas_context.lineTo(this.vertices[i].x, this.vertices[i].y);
     }
+    // 3. Fecha o polígono
     canvas_context.closePath();
+    // ================================================================
 
+
+    // ================================================================
+    // = Preenche e colore caso necessário.
+    // ================================================================
     if (this.color) {
       if (this.color.constructor.name === "GradientColor") {
         // Gradiente radial: usado para efeitos de partículas/luz
@@ -263,10 +231,15 @@ export abstract class Shape extends Item {
       canvas_context.fill();
     }
 
+    // ================================================================
+    // Evidencia o contorno da forma caso necessário
+    // ================================================================
     if (this.lineColor) {
       canvas_context.strokeStyle = (this.lineColor as any).CSS ?? (this.lineColor as any);
       canvas_context.lineWidth = this.lineWidth ?? 1;
       canvas_context.stroke();
     }
+
+    canvas_context.restore();
   }
 }

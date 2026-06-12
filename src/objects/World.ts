@@ -151,8 +151,15 @@ export class World {
         // ─────────────────────────────────────────────────────────────────
         // Phase 2: Physics
         // ─────────────────────────────────────────────────────────────────
-
-        PhysicsSolver.applyForces(this.#objects.getAll());
+        
+        // For each object, we check if it is a movable object
+        let allobjects: any = this.#objects.getAll();
+        allobjects.forEach((element: any[]) => {
+            if (element.constructor.name === "RigidBody") {
+                PhysicsSolver.applyForces(element);
+            }
+        });
+        
         PhysicsSolver.solveColisions(this.#objects.getAll());
 
         // ─────────────────────────────────────────────────────────────────

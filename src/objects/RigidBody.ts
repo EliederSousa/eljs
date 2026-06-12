@@ -1,24 +1,12 @@
 import { Point } from "../physics/Point.js";
 import { Shape } from "./Shape.js";
-import { MovableObject } from "./MovableObject.js";
+import { MovableObject, MovableObjectConfig } from "./MovableObject.js";
 
-/**
- * RigidBody — une um Shape (visual) a um MovableObject (física).
- *
- * É a peça que conecta "como o objeto parece" com "como o objeto se move".
- * Em vez de herdar de Shape ou MovableObject, ele os **compõe**:
- * cada um cuida da sua responsabilidade, e RigidBody os coordena.
- *
- * @example
- * const shape = new CircleObject(pos, { radius: 20, drawMode: "CENTER" });
- * const movable = new MovableObject(pos, { mass: 1, velocity: new Point(0, 0) });
- * const body = new RigidBody(shape, movable);
- *
- * // No loop:
- * body.applyForce(new Point(0, 0.2)); // gravidade
- * body.update();
- * body.draw(ctx);
- */
+export interface RigidBodyConfig extends Omit<MovableObjectConfig, "rotation"> {
+    shape: Shape;
+    isStatic?: boolean;
+}
+
 export class RigidBody {
 
     /** Representação visual do objeto. */
@@ -27,18 +15,27 @@ export class RigidBody {
     /** Componente responsável pela movimentação e física do objeto. */
     movableObject: MovableObject;
 
-    /**
-     * @param shape   - Shape visual do objeto.
-     * @param movable - MovableObject com as propriedades físicas.
-     * @throws Se `shape` não for fornecido.
-     * @throws Se `movable` não for fornecido.
-     */
-    constructor(shape: Shape, movable: MovableObject) {
-        if (!shape) throw new Error("RigidBody::constructor: Shape inválido.");
-        if (!movable) throw new Error("RigidBody::constructor: MovableObject inválido.");
+    isStatic: boolean;
 
-        this.shape = shape;
-        this.movableObject = movable;
+    constructor(config: RigidBodyConfig) {
+        if (!config.shape) {
+            throw new Error("RigidBody::constructor: Shape é obrigatório.");
+        }
+
+        this.shape = config.shape;
+        this.isStatic = config.isStatic ?? false;
+
+        // Extrai a posição e a rotação diretamente do shape fornecido
+        const position = this.shape.position.clone();
+        const rotation = this.shape.rotation; // Usa a rotação do Shape como inicial
+
+        // Instancia o MovableObject internamente
+        this.movableObject = new MovableObject(position, this.shape, {
+            ...config,
+            mass: config.isStatic ? Infinity : (config.mass ?? 1),
+            velocity: config.isStatic ? new Point(0, 0) : config.velocity,
+            rotation: rotation,
+        });
     }
 
     /**
@@ -47,6 +44,9 @@ export class RigidBody {
      * velocidade, aceleração e sincroniza a posição do shape.
      */
     update(): void {
+        if (this.isStatic) {
+            this.shape.updateVertices();
+        }
         this.movableObject.update();
     }
 
@@ -70,15 +70,25 @@ export class RigidBody {
     }
 
     /**
-     * Cria uma cópia deste RigidBody em uma nova posição.
-     * Usado pelo `EmmiterManager` para gerar partículas a partir de um template.
-     *
-     * @param pos - Nova posição para o clone.
-     * @returns Novo `RigidBody` com shape e movable clonados.
-     */
+ * Cria uma cópia deste RigidBody em uma nova posição.
+ * Usado pelo `EmmiterManager` para gerar partículas a partir de um template.
+ *
+ * @param pos - Nova posição para o clone.
+ * @returns Novo `RigidBody` com shape e propriedades físicas clonadas.
+ */
     clone(pos: Point): RigidBody {
-        const shape = this.shape.clone(pos);
-        const movable = this.movableObject.clone(pos);
-        return new RigidBody(shape, movable);
+        // 1. Clona o shape na nova posição desejada
+        const clonedShape = this.shape.clone(pos);
+
+        // 2. Cria o novo RigidBody passando o shape clonado e as propriedades físicas atuais
+        return new RigidBody({
+            shape: clonedShape,
+            velocity: this.movableObject.velocity.clone(),
+            mass: this.movableObject.mass,
+            maxVelocity: this.movableObject.maxVelocity,
+            velRotation: this.movableObject.velRotation,
+            rotationDecay: this.movableObject.rotationDecay,
+            isStatic: this.isStatic
+        });
     }
 }

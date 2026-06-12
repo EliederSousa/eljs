@@ -1,5 +1,6 @@
 import { Color } from "../util/Color.js";
 import { Item } from "./Item.js";
+import { MathHelper } from "../util/MathHelper.js";
 
 /**
  * TextObject — renders a text string on the canvas.
@@ -26,6 +27,8 @@ export class TextObject extends Item {
     bold: string;
     /** Font style string (`"italic"` or `""`). */
     italic: string;
+    /** Rotation in degrees. */
+    rotation: number;
 
     /**
      * @param POINT - Position on the canvas.
@@ -41,6 +44,7 @@ export class TextObject extends Item {
             size: CONF.size ?? 14,
             bold: CONF.bold === true ? "bold" : "",
             italic: CONF.italic ? "italic" : "",
+            rotation: CONF.rotation ?? 0,
         };
         super(CONFIG);
         this.position = POINT;
@@ -52,6 +56,7 @@ export class TextObject extends Item {
         this.size = CONFIG.size;
         this.bold = CONFIG.bold;
         this.italic = CONFIG.italic;
+        this.rotation = CONFIG.rotation;
     }
 
     /**
@@ -69,11 +74,18 @@ export class TextObject extends Item {
      * @param canvas_context - Canvas 2D rendering context.
      */
     draw(canvas_context: CanvasRenderingContext2D): void {
+        canvas_context.save();
+        if (this.rotation) {
+            canvas_context.translate(this.position.x, this.position.y);
+            canvas_context.rotate(MathHelper._PI180 * this.rotation);
+            canvas_context.translate(-this.position.x, -this.position.y);
+        }
         canvas_context.font = `${this.bold} ${this.italic} ${this.size}px ${this.font}`;
         canvas_context.fillStyle = (this.color as any).CSS ?? this.color as any;
         canvas_context.fillText(this.text, this.position.x, this.position.y);
         if (this.lineColor) {
             canvas_context.strokeText(this.text, this.position.x, this.position.y);
         }
+        canvas_context.restore();
     }
 }

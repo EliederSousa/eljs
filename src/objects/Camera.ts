@@ -1,4 +1,5 @@
 import { Item } from "./Item.js";
+import { MathHelper } from "../util/MathHelper.js";
 
 /** Easing function type: maps a normalised time `t` [0,1] to a eased value. */
 type EasingFn = (t: number) => number;
@@ -111,11 +112,12 @@ export class Camera extends Item {
      * Call before drawing scene objects, then `context.restore()` after.
      */
     apply(context: CanvasRenderingContext2D, screenCenter: { x: number; y: number }): void {
+        context.translate(screenCenter.x, screenCenter.y);
+        if (this.rotation) {
+            context.rotate(MathHelper._PI180 * this.rotation);
+        }
         context.scale(this.zoom, this.zoom);
-        context.translate(
-            (screenCenter.x / this.zoom) - this.position.x,
-            (screenCenter.y / this.zoom) - this.position.y,
-        );
+        context.translate(-this.position.x, -this.position.y);
     }
 
     /**

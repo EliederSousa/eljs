@@ -1,4 +1,5 @@
 import { Properties } from "../core/Properties";
+import { RigidBody } from "../objects/RigidBody";
 import { Point } from "./Point";
 
 /**
@@ -24,14 +25,10 @@ export class PhysicsSolver {
      * Called once per frame by `World.run()`.
      * @param objectList - Array of all scene objects to apply forces to.
      */
-    static applyForces(objectList: any[]): void {
-        // iterate over all objects and apply forces based on the settings of the world, and the object itself.
-        objectList.forEach(element => {
-            if (element.constructor.name === "RigidBody") {
-                element.applyForce(new Point(0, Properties.gravity));
-                element.applyForce(new Point(Properties.wind, 0));
-            }
-        });
+    static applyForces(obj: RigidBody): void {
+        // apply forces based on the settings of the world.
+        obj.applyForce(new Point(0, Properties.gravity));
+        obj.applyForce(new Point(Properties.wind, 0));
     }
 
     /**

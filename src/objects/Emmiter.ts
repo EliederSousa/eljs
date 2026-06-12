@@ -34,7 +34,6 @@ export class EmmiterManager {
 
         this.shape = new CircleObject(this.position.clone(), {
             color: this.color,
-            drawMode: "CENTER",
             radius: this.radius,
         });
 

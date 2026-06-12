@@ -1,5 +1,6 @@
 import { Point } from "../physics/Point.js";
 import { Color } from "../util/Color.js";
+import { MathHelper } from "../util/MathHelper.js";
 import { Shape } from "./Shape.js";
 
 /**
@@ -17,25 +18,13 @@ export interface RectangleConfig {
     lineColor?: Color;
     /** Stroke width in pixels. */
     lineWidth?: number;
-    /** How `position` is interpreted: `"UPLEFT"`, `"CENTER"`, or `"VERTICES"`. Default: `"UPLEFT"`. */
-    drawMode?: string;
     /** Rotation angle in degrees. Default: 0. */
     rotation?: number;
     /** Whether the rectangle is drawn. Default: true. */
     visible?: boolean;
 }
 
-/**
- * RectangleObject — rectangular shape with configurable width, height, and draw mode.
- *
- * @example
- * const rect = new RectangleObject(new Point(100, 100), {
- *   width: 80,
- *   height: 40,
- *   color: new Color(1, 0, 0, 1),
- *   drawMode: "CENTER",
- * });
- */
+
 export class RectangleObject extends Shape {
     /** Width of the rectangle in pixels. */
     width: number;
@@ -58,7 +47,6 @@ export class RectangleObject extends Shape {
         config.color = conf.color ?? new Color(1, 1, 1, 1);
         config.lineColor = conf.lineColor;
         config.lineWidth = conf.lineWidth;
-        config.drawMode = conf.drawMode ?? "UPLEFT";
 
         const halfx = conf.width / 2;
         const halfy = conf.height / 2;
@@ -74,15 +62,26 @@ export class RectangleObject extends Shape {
         this.height = conf.height;
     }
 
+    /**
+     * Recalcula os 4 vértices aplicando `this.rotation` ao redor do centro.
+     */
     updateVertices(): void {
         const halfx = this.width / 2;
         const halfy = this.height / 2;
-        this.vertices = [
-            this.position.clone().add(-halfx, -halfy),
-            this.position.clone().add(halfx, -halfy),
-            this.position.clone().add(halfx, halfy),
-            this.position.clone().add(-halfx, halfy),
+        const cx = this.position.x;
+        const cy = this.position.y;
+        const cos = Math.cos(MathHelper._PI180 * this.rotation);
+        const sin = Math.sin(MathHelper._PI180 * this.rotation);
+        const base = [
+            { x: -halfx, y: -halfy },
+            { x:  halfx, y: -halfy },
+            { x:  halfx, y:  halfy },
+            { x: -halfx, y:  halfy },
         ];
+        this.vertices = base.map(v => new Point(
+            cx + v.x * cos - v.y * sin,
+            cy + v.x * sin + v.y * cos,
+        ));
     }
 
     /**
@@ -94,27 +93,18 @@ export class RectangleObject extends Shape {
         conf.height = this.height;
     }
 
+    /**
+     * Desenha o retângulo no canvas.
+     *
+     * Em `VERTICES` desenha via polígono de vértices (rotação incluída).
+     * Caso contrário, usa `fillRect`/`strokeRect` com transformação
+     * de rotação aplicada ao centro.
+     *
+     * @param canvas_context - Contexto 2D do canvas.
+     */
     draw(canvas_context: CanvasRenderingContext2D): void {
         this.updateVertices();
         if (!this.visible) return;
-        if (this.drawMode === "VERTICES") {
-            super.drawVertices(canvas_context);
-        } else {
-            canvas_context.save();
-            const temppos = this.drawMode === "CENTER"
-                ? new Point(this.position.x - this.width / 2, this.position.y - this.height / 2)
-                : this.position;
-
-            if (this.color) {
-                canvas_context.fillStyle = (this.color as any).CSS ?? this.color as any;
-                canvas_context.fillRect(temppos.x, temppos.y, this.width, this.height);
-            }
-            if (this.lineColor && this.lineWidth) {
-                canvas_context.strokeStyle = (this.lineColor as any).CSS ?? this.lineColor as any;
-                canvas_context.lineWidth = this.lineWidth;
-                canvas_context.strokeRect(temppos.x, temppos.y, this.width, this.height);
-            }
-            canvas_context.restore();
-        }
+        super.drawVertices(canvas_context);
     }
 }

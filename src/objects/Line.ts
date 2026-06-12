@@ -1,5 +1,6 @@
 import { Point } from "../physics/Point.js";
 import { Color } from "../util/Color.js";
+import { MathHelper } from "../util/MathHelper.js";
 import { Shape } from "./Shape.js";
 
 /**
@@ -27,7 +28,6 @@ export class LineObject extends Shape {
         config.color = conf.color ?? new Color(1, 1, 1, 1);
         config.lineColor = conf.lineColor;
         config.lineWidth = conf.lineWidth;
-        config.drawMode = conf.drawMode ?? "UPLEFT";
 
         config.vertices = [
             position.clone(),
@@ -49,39 +49,30 @@ export class LineObject extends Shape {
     /**
      * Draws the line segment on the canvas.
      * Handles `UPLEFT`, `CENTER`, and `VERTICES` draw modes.
+     * Rotation is applied around the line's midpoint.
      * @param canvas_context - Canvas 2D rendering context.
      */
     draw(canvas_context: CanvasRenderingContext2D): void {
         if (!this.visible) return;
-        if (this.drawMode === "VERTICES") {
-            super.drawVertices(canvas_context);
-        } else {
-            canvas_context.save();
-            let temppos: Point;
-            let tempwidth: number;
-            let tempheight: number;
+        this.updateVertices();
+        super.drawVertices(canvas_context);
+    }
 
-            if (this.drawMode === "CENTER") {
-                tempwidth = this.to.x - this.position.x;
-                tempheight = this.to.y - this.position.y;
-                temppos = new Point(this.position.x - tempwidth / 2, this.position.y - tempheight / 2);
-            } else {
-                temppos = this.position;
-                tempwidth = this.to.x - this.position.x;
-                tempheight = this.to.y - this.position.y;
-            }
-
-            if (this.lineColor && this.lineWidth) {
-                canvas_context.strokeStyle = (this.lineColor as any).CSS ?? this.lineColor as any;
-                canvas_context.lineWidth = this.lineWidth;
-            }
-
-            canvas_context.beginPath();
-            canvas_context.moveTo(temppos.x, temppos.y);
-            canvas_context.lineTo(temppos.x + tempwidth, temppos.y + tempheight);
-            canvas_context.closePath();
-            canvas_context.stroke();
-            canvas_context.restore();
-        }
+    /**
+     * Recalculates vertices applying `this.rotation` around the midpoint.
+     */
+    updateVertices(): void {
+        const dx = this.to.x - this.position.x;
+        const dy = this.to.y - this.position.y;
+        const mx = this.position.x + dx / 2;
+        const my = this.position.y + dy / 2;
+        const cos = Math.cos(MathHelper._PI180 * this.rotation);
+        const sin = Math.sin(MathHelper._PI180 * this.rotation);
+        const hdx = dx / 2;
+        const hdy = dy / 2;
+        this.vertices = [
+            new Point(mx + (-hdx) * cos - (-hdy) * sin, my + (-hdx) * sin + (-hdy) * cos),
+            new Point(mx + hdx * cos - hdy * sin, my + hdx * sin + hdy * cos),
+        ];
     }
 }
