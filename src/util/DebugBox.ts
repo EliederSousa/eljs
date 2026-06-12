@@ -23,18 +23,23 @@ export class DebugBox extends Item {
     frameCount: number;
     fps: number;
     lastFpsUpdate: number;
+    width: number;
+    height: number;
+
 
     constructor(POINT = new Point(5, 5), CONF: { container?: ObjectContainer<any> }) {
-        const CONFIG = { type: "DebuxBox" };
+        const CONFIG = { type: "DebugBox" };
         super(CONFIG);
         this.position = POINT;
         this.boxLines = 6;
-        this.box = new RectangleObject(new Point(this.position.x, this.position.y), {
+        this.width = 150;
+        this.height = 15 * this.boxLines + 20;
+        this.box = new RectangleObject(new Point(this.width / 2, this.height / 2 + 8), {
             color: new Color(0, 0, 0, 0),
             lineColor: new Color(Color.colors.green as unknown as number[]),
             lineWidth: 1,
             width: this.position.x + 140,
-            height: this.position.y + 15 * this.boxLines + 14,
+            height: this.height,
         });
         this.objectContainer = CONF.container ? CONF.container : "null";
 
@@ -70,13 +75,14 @@ export class DebugBox extends Item {
 
     updateFps(): void {
         const now = performance.now();
-        this.frameCount++;
-        if (now - this.lastFpsUpdate >= 1000) {
-            this.fps = Math.round((this.frameCount * 1000) / (now - this.lastFpsUpdate));
-            this.lastFpsUpdate = now;
-            this.frameCount = 0;
-        }
+
+        const delta = now - this.lastFrameTime;
         this.lastFrameTime = now;
+
+        if (delta > 0) {
+            const currentFps = 1000 / delta;
+            this.fps = Math.round(this.fps * 0.9 + currentFps * 0.1);
+        }
     }
 
     setPosition(X: number, Y: number): void {
@@ -131,7 +137,7 @@ export class DebugBox extends Item {
         this.mouseText.text = "Objects: " + (typeof this.objectContainer === "string" ? this.objectContainer : this.objectContainer.getCount());
         screen.drawItem(this.mouseText);
 
-        this.box.position = new Point(this.position.x, this.position.y);
+        //this.box.position = new Point(this.position.x, this.position.y);
         screen.drawItem(this.box);
     }
 }

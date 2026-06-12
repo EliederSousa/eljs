@@ -6,18 +6,19 @@
  */
 export class Properties {
     /** Draw the debug info box (FPS, mouse coords, key states). */
-    static debugBox = false;
+    static debugBox = true;
 
     /** Draw velocity and acceleration debug lines on moving objects. */
-    static velocityLine = false;
+    static velocityLine = true;
 
     /** Draw emitter areas and timers. */
     static debugEmmiters = false;
 
     /** Maximum velocity magnitude for any MovableObject. */
-    static maxVelocity = 1000;
+    static maxVelocity = 999;
+    static damping = 0.999;
 
-    static gravity = 0.001;
+    static gravity = 20;
     static wind = 0;
 
     /** Wrap objects around screen edges instead of letting them escape. */

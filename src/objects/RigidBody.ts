@@ -32,7 +32,7 @@ export class RigidBody {
         // Instancia o MovableObject internamente
         this.movableObject = new MovableObject(position, this.shape, {
             ...config,
-            mass: config.isStatic ? Infinity : (config.mass ?? 1),
+            mass: config.isStatic ? Infinity : (config.mass ?? 10),
             velocity: config.isStatic ? new Point(0, 0) : config.velocity,
             rotation: rotation,
         });
@@ -43,11 +43,11 @@ export class RigidBody {
      * Delega para `MovableObject.update()`, que aplica
      * velocidade, aceleração e sincroniza a posição do shape.
      */
-    update(): void {
+    update(dt: number): void {
         if (this.isStatic) {
             this.shape.updateVertices();
         }
-        this.movableObject.update();
+        this.movableObject.update(dt);
     }
 
     /**

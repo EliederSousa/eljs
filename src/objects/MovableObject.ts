@@ -142,14 +142,12 @@ export class MovableObject extends Item {
             to: this.position,
             lineColor: this.velocityLineColor,
             lineWidth: 1,
-            drawMode: "UPLEFT",
         });
 
         this.accelerationShape = new LineObject(this.position, {
             to: this.position,
             lineColor: this.accelerationLineColor,
             lineWidth: 2,
-            drawMode: "UPLEFT",
         });
     }
 
@@ -177,11 +175,16 @@ export class MovableObject extends Item {
         this.acceleration.add(force);
     }
 
-    update(ENV?: Environment): void {
+    update(dt: number, ENV?: Environment): void {
+        
         if (this.mass !== Infinity) {
             this.velocity.add(this.acceleration);
             this.velocity.limit(this.maxVelocity);
-            this.position.add(this.velocity);
+            this.velocity.scale(Properties.damping);
+
+            const currentVel = this.velocity.clone();
+            currentVel.scale(dt);
+            this.position.add(currentVel);
         }
 
         if (Properties.circularScreen && ENV) {
@@ -192,9 +195,11 @@ export class MovableObject extends Item {
         }
 
         // 1. Atualiza a física da rotação primeiro
+        // Rotação: θ += ω * dt
         if (Math.abs(this.velRotation) > 0.001) {
-            this.rotation += this.velRotation;
-            this.velRotation *= this.rotationDecay;
+            this.rotation += this.velRotation * dt;
+            // O decaimento precisa ser proporcional ao tempo
+            this.velRotation *= Math.pow(this.rotationDecay, dt * 60);
         }
 
         // 2. Sincroniza o Shape com os novos dados físicos calculados NESTE frame
@@ -208,13 +213,13 @@ export class MovableObject extends Item {
 
         if (Properties.velocityLine) {
             const velocityVec = this.velocity.clone();
-            velocityVec.scale(10);
+            velocityVec.scale(5);
             velocityVec.add(this.position);
             this.velocityShape.position = this.position;
             this.velocityShape.to = velocityVec;
 
             const accelerationVec = this.acceleration.clone();
-            accelerationVec.scale(100);
+            accelerationVec.scale(20);
             accelerationVec.add(this.position);
             this.accelerationShape.position = this.shape.getCenter();
             this.accelerationShape.to = accelerationVec;

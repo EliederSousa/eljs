@@ -48,6 +48,8 @@ export class World {
     /** The scene camera (movable, zoomable, with easing). */
     camera: Camera;
 
+    private lastTime: number = 0;
+
     constructor() {
         this.#emmiters = new ObjectContainer();
         this.#objects = new ObjectContainer();
@@ -115,7 +117,15 @@ export class World {
      * Call this from `requestAnimationFrame(loop)` or bind it directly:
      * `requestAnimationFrame(() => world.run())`
      */
-    run(): void {
+    run(timestamp: number = 0): void {
+        // Calcula o deltaTime em segundos (ex: 0.016 para 60fps)
+        if (!this.lastTime) this.lastTime = timestamp;
+        let dt = (timestamp - this.lastTime) / 1000;
+        this.lastTime = timestamp;
+
+        // Evita saltos gigantescos se a aba do navegador perder o foco (limita a no máximo 1/10 de segundo)
+        if (dt > 0.1) dt = 0.1;
+
         // ─────────────────────────────────────────────────────────────────
         // Phase 1: Input & object lifecycle
         // ─────────────────────────────────────────────────────────────────
@@ -151,16 +161,17 @@ export class World {
         // ─────────────────────────────────────────────────────────────────
         // Phase 2: Physics
         // ─────────────────────────────────────────────────────────────────
-        
-        // For each object, we check if it is a movable object
+
         let allobjects: any = this.#objects.getAll();
-        allobjects.forEach((element: any[]) => {
-            if (element.constructor.name === "RigidBody") {
-                PhysicsSolver.applyForces(element);
+
+        allobjects.forEach((obj: any[]) => {
+            if (obj && obj.constructor.name === "RigidBody") {
+                PhysicsSolver.applyForces(obj);
+                obj.update(dt);
             }
         });
-        
-        PhysicsSolver.solveColisions(this.#objects.getAll());
+
+        PhysicsSolver.solveColisions(allobjects);
 
         // ─────────────────────────────────────────────────────────────────
         // Phase 3: Render
@@ -169,42 +180,26 @@ export class World {
         this.screen.draw();
 
         if (Properties.debugEmmiters) {
-            for (let w = 0; w < this.#emmiters.getCount(); w++) {
-                const emmit = this.#emmiters.getObject(w);
-                if (emmit != null) {
-                    emmit.update();
-                    this.screen.drawItem(emmit, this.camera);
+            this.#emmiters.getAll().forEach(emmiter => {
+                if (emmiter) {
+                    emmiter.update();
+                    this.screen.drawItem(emmiter, this.camera);
                 }
-            }
+            });
         }
 
-        for (let w = 0; w < this.#objects.getCount(); w++) {
-            const tempObj = this.#objects.getObject(w);
-            if (tempObj !== null) {
-                switch (tempObj.constructor.name) {
-                    case "Grid":
-                        this.screen.drawItem(tempObj, this.camera);
-                        break;
-                }
-                if (tempObj.movableObject) {
-                    tempObj.update();
-                    this.screen.drawItem(tempObj.movableObject, this.camera);
-                } else {
-                    this.screen.drawItem(tempObj, this.camera);
-                }
-                if (Properties.velocityLine) {
-                    if (tempObj.movableObject) {
-                        this.screen.drawItem(tempObj.movableObject.velocityShape, this.camera);
-                        this.screen.drawItem(tempObj.movableObject.accelerationShape, this.camera);
-                    } else {
-                        this.screen.drawItem(tempObj.velocityShape, this.camera);
-                        this.screen.drawItem(tempObj.accelerationShape, this.camera);
-                    }
+        this.#objects.getAll().forEach(obj => {
+            if (obj !== null) {
+                this.screen.drawItem(obj, this.camera);
+                if (Properties.velocityLine && obj.movableObject) {
+                    this.screen.drawItem(obj.movableObject.velocityShape, this.camera);
+                    this.screen.drawItem(obj.movableObject.accelerationShape, this.camera);
                 }
             }
-        }
+        });
 
         if (Properties.debugBox) this.screen.drawItem(this.#debugbox);
-        requestAnimationFrame(this.run.bind(this));
+
+        requestAnimationFrame((time) => this.run(time));
     }
 }
