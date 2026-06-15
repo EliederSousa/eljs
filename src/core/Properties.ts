@@ -5,22 +5,53 @@
  * and rendering behaviour across the entire scene.
  */
 export class Properties {
-    /** Draw the debug info box (FPS, mouse coords, key states). */
+    // ================================================================
+    // Parâmetros do World
+    // ================================================================
+
+    // Simula uma tela circular: elementos que saem por um lado aparecem no outro.
+    static circularScreen = true;
+
+    // Ativa uma caixa de debug com informações de FPS, mouse, teclas pressionadas, etc.
     static debugBox = true;
 
-    /** Draw velocity and acceleration debug lines on moving objects. */
+    // Desenha linhas de debug para aceleração e velocidade em objetos Movable.
     static velocityLine = true;
+    static velocityLineScale = .2;
+    static accelerationLineScale = 1;
 
-    /** Draw emitter areas and timers. */
+    // Mostra emmiters.
     static debugEmmiters = false;
 
-    /** Maximum velocity magnitude for any MovableObject. */
-    static maxVelocity = 999;
-    static damping = 0.999;
+    // ================================================================
+    // Propriedades de física padrão
+    // ================================================================
+
+    static maxVelocity = 2000;          // Máxima velocidade de qualquer objeto Movable
+    static damping = 0.999;             // Velocidade de decaimento: quanto maior, mais atrito com o ar
+
+    static frictionSensibility = 2;      // Valor mínimo de velocidade tangente para aplicar velocidade horizontal
+    static positionalCorrectionPercent = .5;    // Porcentagem de correção posicional. Maior é mais forçado.
+    // Margem de erro: se objetos estiverem se tocando mas a penetração for menor que isso, não force o afastamento.
+    static positionalCorrectionSlop = .5;
+
+    static rotationSensitivity = .1;    // Valor mínimo que uma força deve ter para rotacionar um objeto. Menor que isso impede rotação
+    static solverIterations = 8;        // Quantidade de iterações pelas quais o solver passa, por frame.
+
+    // ================================================================
+    // Valores padrão para forças
+    // ================================================================
 
     static gravity = 12;
     static wind = 0;
 
-    /** Wrap objects around screen edges instead of letting them escape. */
-    static circularScreen = true;
+    // ================================================================
+    // Valores padrão para objetos Movable
+    // ================================================================
+
+    static defaultMass = 1;                 // Valor padrão de massa
+    static defaultRestitution = 0.4;        // Valor padrão de restitution (elasticidade) dos objetos.
+    static defaultFriction = 0.2;           // Valor padrão de frição dos objetos.
+    static defaultRotationDecay = 0.99;     // Valor padrão que é multiplicado pelo velRotation para reduzir a rotação.
+    static defaultMinimumRotation = 0.001;  // Um MovableObject não rotacionará se seu velRotation for menor que este valor.
 }

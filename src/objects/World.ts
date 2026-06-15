@@ -9,6 +9,7 @@ import { EmmiterManager } from "./Emmiter.js";
 import { Properties } from "../core/Properties.js";
 import { PhysicsSolver } from "../physics/PhysicsSolver.js";
 import { MovableObject } from "./MovableObject.js";
+import { RigidBody } from "./RigidBody.js";
 
 
 /**
@@ -166,14 +167,20 @@ export class World {
 
         let allobjects: any = this.#objects.getAll();
 
-        allobjects.forEach((obj: any[]) => {
+        allobjects.forEach((obj: RigidBody) => {
             if (obj && obj.constructor.name === "RigidBody") {
                 PhysicsSolver.applyForces(obj);
                 obj.update(dt, this.screen);
             }
         });
 
-        PhysicsSolver.solveColisions(allobjects);
+        // 2.2 — RESOLUÇÃO MULTI-PASSO (Crucial para estabilidade)
+        // Executar o solver de colisão de 6 a 8 vezes faz com que os blocos de cima
+        // "tomem conhecimento" de que o chão lá embaixo está travando todo mundo.
+        const SOLVER_ITERATIONS = Properties.solverIterations;
+        for (let i = 0; i < SOLVER_ITERATIONS; i++) {
+            PhysicsSolver.solveColisions(allobjects);
+        }
 
         // ─────────────────────────────────────────────────────────────────
         // Phase 3: Render
@@ -197,11 +204,12 @@ export class World {
                 if (Properties.velocityLine && obj.movableObject) {
                     const mov: MovableObject = obj.movableObject;
 
-                    const accelVec = mov.lastAcceleration.clone().scale(2).add(mov.position);
+                    const accelVec = mov.lastAcceleration.clone().scale(Properties.accelerationLineScale).add(mov.position);
                     mov.accelerationShape.position = mov.position;
                     mov.accelerationShape.to = accelVec;
+
                     // Atualiza linha de velocidade
-                    const velVec = mov.velocity.clone().scale(.2).add(mov.position);
+                    const velVec = mov.velocity.clone().scale(Properties.accelerationLineScale).add(mov.position);
                     mov.velocityShape.position = mov.position;
                     mov.velocityShape.to = velVec;
 

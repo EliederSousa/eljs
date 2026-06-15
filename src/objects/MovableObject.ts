@@ -16,6 +16,11 @@ export interface MovableObjectConfig {
     /** Massa do objeto. Afeta o quanto uma força altera a aceleração. Padrão: 1. */
     mass?: number;
 
+    restitution?: number; // 0 (não quica, ex: areia) a 1 (quica tudo, ex: super borracha)
+    friction?: number;    // 0 (gelo perfeito) a 1+ (lixa/borracha grudenta)
+
+    fixedRotation?: boolean;
+
     /** Velocidade inicial. */
     velocity: Point;
 
@@ -82,6 +87,8 @@ export class MovableObject extends Item {
     /** Massa do objeto. Quanto maior, menos uma força o afeta. */
     mass: number;
 
+    fixedRotation: boolean;
+
     /** Posição atual na cena. */
     position: Point;
 
@@ -104,6 +111,9 @@ export class MovableObject extends Item {
 
     /** Fator de decaimento da rotação por frame (0–1). */
     rotationDecay: number;
+
+    restitution: number; // 0 (não quica, ex: areia) a 1 (quica tudo, ex: super borracha)
+    friction: number;    // 0 (gelo perfeito) a 1+ (lixa/borracha grudenta)
 
     /** Cor da linha de debug de velocidade. */
     private velocityLineColor: Color;
@@ -128,7 +138,10 @@ export class MovableObject extends Item {
         super({ type: "MovableObject" });
 
         this.shape = shape;
-        this.mass = conf.mass ?? 1;
+        this.mass = conf.mass ?? Properties.defaultMass;
+        this.restitution = conf.restitution ?? Properties.defaultRestitution;   // Madeira/Padrão
+        this.friction = conf.friction ?? Properties.defaultFriction;            // Atrito médio
+        this.fixedRotation = conf.fixedRotation ?? false;
         this.position = position.clone();
         this.velocity = conf.velocity.clone();
         this.acceleration = conf.acceleration?.clone() ?? new Point(0, 0);
@@ -136,7 +149,7 @@ export class MovableObject extends Item {
         this.maxVelocity = conf.maxVelocity ?? Properties.maxVelocity;
         this.rotation = conf.rotation ?? shape.rotation ?? 0;
         this.velRotation = conf.velRotation ?? 0;
-        this.rotationDecay = conf.rotationDecay ?? 0.99;
+        this.rotationDecay = conf.rotationDecay ?? Properties.defaultRotationDecay;
         this.cloneData = conf;
 
         this.velocityLineColor = new Color(0.18, 0.8, 0.4, 0.8);
@@ -216,20 +229,6 @@ export class MovableObject extends Item {
         if (typeof this.shape.updateVertices === "function") {
             this.shape.updateVertices();
         }
-
-        /*if (Properties.velocityLine) {
-            const velocityVec = this.velocity.clone();
-            velocityVec.scale(5);
-            velocityVec.add(this.position);
-            this.velocityShape.position = this.position;
-            this.velocityShape.to = velocityVec;
-
-            const accelerationVec = this.acceleration.clone();
-            accelerationVec.scale(20);
-            accelerationVec.add(this.position);
-            this.accelerationShape.position = this.shape.getCenter();
-            this.accelerationShape.to = accelerationVec;
-        }*/
 
         this.lastAcceleration = this.acceleration.clone();
 

@@ -9,7 +9,7 @@ import { Point } from "../src/physics/Point.js";
 
 // MathHelper constants
 console.log(MathHelper._TWOPI); // Math.PI * 2
-console.log(MathHelper._180PI); // 180 / Math.PI
+console.log(MathHelper._180PI); // MathHelper._180PI
 console.log(MathHelper._PI180); // Math.PI / 180
 
 // Random fixed-point number between 0 and 10, 5 decimal places

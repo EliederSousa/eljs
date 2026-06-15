@@ -13,7 +13,7 @@ export interface RectangleConfig {
     /** Height of the rectangle in pixels. */
     height: number;
     /** Fill colour. Default: opaque white. */
-    color?: Color;
+    color?: Color | null;
     /** Stroke colour. No stroke if omitted. */
     lineColor?: Color;
     /** Stroke width in pixels. */
@@ -44,7 +44,7 @@ export class RectangleObject extends Shape {
         const config: any = { ...conf, type: "Rectangle" };
         config.rotation = conf.rotation ?? 0;
         config.visible = conf.visible ?? true;
-        config.color = conf.color ?? new Color(1, 1, 1, 1);
+        config.color = conf.color ?? null;
         config.lineColor = conf.lineColor;
         config.lineWidth = conf.lineWidth;
 
@@ -74,9 +74,9 @@ export class RectangleObject extends Shape {
         const sin = Math.sin(MathHelper._PI180 * this.rotation);
         const base = [
             { x: -halfx, y: -halfy },
-            { x:  halfx, y: -halfy },
-            { x:  halfx, y:  halfy },
-            { x: -halfx, y:  halfy },
+            { x: halfx, y: -halfy },
+            { x: halfx, y: halfy },
+            { x: -halfx, y: halfy },
         ];
         this.vertices = base.map(v => new Point(
             cx + v.x * cos - v.y * sin,
