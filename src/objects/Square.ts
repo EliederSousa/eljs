@@ -42,7 +42,6 @@ export class SquareObject extends Shape {
         super(position, {
             ...conf,
             type: "Square",
-            color: conf.color ?? new Color(1, 1, 1, 1),
             vertices,
         });
 

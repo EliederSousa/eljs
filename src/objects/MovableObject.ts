@@ -22,6 +22,9 @@ export interface MovableObjectConfig {
     /** Aceleração inicial. Padrão: (0, 0). */
     acceleration?: Point;
 
+    /** Variável auxiliar: guarda a última aceleração antes dela ser zerada. Serve para ser mostrada no render */
+    lastAcceleration?: Point;
+
     /** Velocidade máxima em magnitude. Padrão: `Properties.maxVelocity`. */
     maxVelocity?: number;
 
@@ -88,6 +91,8 @@ export class MovableObject extends Item {
     /** Aceleração atual. Zerada ao final de cada `update()`. */
     acceleration: Point;
 
+    lastAcceleration: Point;
+
     /** Limite de magnitude da velocidade. */
     maxVelocity: number;
 
@@ -127,10 +132,11 @@ export class MovableObject extends Item {
         this.position = position.clone();
         this.velocity = conf.velocity.clone();
         this.acceleration = conf.acceleration?.clone() ?? new Point(0, 0);
+        this.lastAcceleration = new Point(0, 0);
         this.maxVelocity = conf.maxVelocity ?? Properties.maxVelocity;
         this.rotation = conf.rotation ?? shape.rotation ?? 0;
         this.velRotation = conf.velRotation ?? 0;
-        this.rotationDecay = conf.rotationDecay ?? 0.985;
+        this.rotationDecay = conf.rotationDecay ?? 0.99;
         this.cloneData = conf;
 
         this.velocityLineColor = new Color(0.18, 0.8, 0.4, 0.8);
@@ -147,7 +153,7 @@ export class MovableObject extends Item {
         this.accelerationShape = new LineObject(this.position, {
             to: this.position,
             lineColor: this.accelerationLineColor,
-            lineWidth: 2,
+            lineWidth: 1,
         });
     }
 
@@ -211,7 +217,7 @@ export class MovableObject extends Item {
             this.shape.updateVertices();
         }
 
-        if (Properties.velocityLine) {
+        /*if (Properties.velocityLine) {
             const velocityVec = this.velocity.clone();
             velocityVec.scale(5);
             velocityVec.add(this.position);
@@ -223,7 +229,9 @@ export class MovableObject extends Item {
             accelerationVec.add(this.position);
             this.accelerationShape.position = this.shape.getCenter();
             this.accelerationShape.to = accelerationVec;
-        }
+        }*/
+
+        this.lastAcceleration = this.acceleration.clone();
 
         // Zera a aceleração — forças precisam ser reaplicadas a cada frame.
         this.acceleration.scale(0);

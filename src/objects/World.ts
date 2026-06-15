@@ -8,6 +8,8 @@ import { DebugBox } from "../util/DebugBox.js";
 import { EmmiterManager } from "./Emmiter.js";
 import { Properties } from "../core/Properties.js";
 import { PhysicsSolver } from "../physics/PhysicsSolver.js";
+import { MovableObject } from "./MovableObject.js";
+
 
 /**
  * World — orchestrator for the full game/application loop.
@@ -151,7 +153,7 @@ export class World {
 
         for (let w = 0; w < this.#objects.getCount(); w++) {
             const obj = this.#objects.getObject(w);
-            if (obj !== null && obj.constructor.name === "Particle") {
+            if (obj !== null && obj.shape?.maxTime != null) {
                 if (obj.shape.timer.compare() > obj.shape.maxTime) {
                     this.#objects.del(w);
                 }
@@ -191,9 +193,21 @@ export class World {
         this.#objects.getAll().forEach(obj => {
             if (obj !== null) {
                 this.screen.drawItem(obj, this.camera);
+
                 if (Properties.velocityLine && obj.movableObject) {
-                    this.screen.drawItem(obj.movableObject.velocityShape, this.camera);
-                    this.screen.drawItem(obj.movableObject.accelerationShape, this.camera);
+                    const mov: MovableObject = obj.movableObject;
+
+                    const accelVec = mov.lastAcceleration.clone().scale(2).add(mov.position);
+                    mov.accelerationShape.position = mov.position;
+                    mov.accelerationShape.to = accelVec;
+                    // Atualiza linha de velocidade
+                    const velVec = mov.velocity.clone().scale(.2).add(mov.position);
+                    mov.velocityShape.position = mov.position;
+                    mov.velocityShape.to = velVec;
+
+                    this.screen.drawItem(mov.accelerationShape, this.camera);
+                    this.screen.drawItem(mov.velocityShape, this.camera);
+
                 }
             }
         });

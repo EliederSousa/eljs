@@ -9,7 +9,7 @@ export class Properties {
     static debugBox = true;
 
     /** Draw velocity and acceleration debug lines on moving objects. */
-    static velocityLine = false;
+    static velocityLine = true;
 
     /** Draw emitter areas and timers. */
     static debugEmmiters = false;
@@ -18,7 +18,7 @@ export class Properties {
     static maxVelocity = 999;
     static damping = 0.999;
 
-    static gravity = 20;
+    static gravity = 12;
     static wind = 0;
 
     /** Wrap objects around screen edges instead of letting them escape. */

@@ -25,7 +25,7 @@ export interface ShapeConfig {
   visible?: boolean;
 
   /** Cor de preenchimento. Padrão: branco opaco. */
-  color?: Color;
+  color?: Color | null;
 
   /** Cor do contorno. Se ausente, contorno não é desenhado. */
   lineColor?: Color;
@@ -71,7 +71,7 @@ export abstract class Shape extends Item {
   visible: boolean;
 
   /** Cor de preenchimento. */
-  color: Color;
+  color: Color | null;
 
   /** Cor do contorno. `undefined` = sem contorno. */
   lineColor?: Color;
@@ -104,7 +104,7 @@ export abstract class Shape extends Item {
     this.position = position;
     this.rotation = conf.rotation ?? 0;
     this.visible = conf.visible ?? true;
-    this.color = conf.color ?? new Color(1, 1, 1, 1);
+    this.color = conf.color ?? null;
     this.lineColor = conf.lineColor;
     this.lineWidth = conf.lineWidth;
 

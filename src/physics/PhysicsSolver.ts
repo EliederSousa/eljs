@@ -6,8 +6,7 @@ export class PhysicsSolver {
 
     static applyForces(obj: RigidBody): void {
         if (obj.movableObject && obj.movableObject.mass !== Infinity) {
-            obj.applyForce(new Point(0, Properties.gravity));
-            obj.applyForce(new Point(Properties.wind, 0));
+            obj.movableObject.acceleration.add(new Point(Properties.wind, Properties.gravity));
         }
     }
 
